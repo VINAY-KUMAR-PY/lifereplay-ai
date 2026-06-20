@@ -1,16 +1,17 @@
-import cors from "cors";
+import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
+dotenv.config({ path: fileURLToPath(new URL("../.env", import.meta.url)) });
+
+import cors from "cors";
 import express from "express";
 import { z } from "zod";
-import { analyzeDecision, compareOptions } from "./aiService.js";
+
+const { analyzeDecision, compareOptions } = await import("./aiService.js");
 import { readHistory, saveAnalysis } from "./storage.js";
 import type { DashboardMetrics } from "./types.js";
 
-dotenv.config();
-
 const app = express();
 const port = Number(process.env.PORT ?? 5000);
-const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:5173";
 
 app.use(
   cors({
@@ -30,7 +31,11 @@ const compareSchema = z.object({
 });
 
 app.get("/health", (_req, res) => {
-  res.json({ status: "ok", app: "LifeReplay AI", timestamp: new Date().toISOString() });
+  res.json({
+    status: "ok",
+    app: "LifeReplay AI",
+    timestamp: new Date().toISOString()
+  });
 });
 
 app.post("/api/analyze", async (req, res, next) => {
@@ -66,6 +71,7 @@ app.get("/api/dashboard", async (_req, res, next) => {
   try {
     const history = await readHistory();
     const totalDecisions = history.length;
+
     const averageConfidenceScore = totalDecisions
       ? Math.round(history.reduce((sum, item) => sum + item.confidenceScore, 0) / totalDecisions)
       : 0;
@@ -75,8 +81,8 @@ app.get("/api/dashboard", async (_req, res, next) => {
       return acc;
     }, {});
 
-    const mostCommonRiskCategory = Object.entries(riskDistribution).sort((a, b) => b[1] - a[1])[0]?.[0]
-      ?? "Not enough data";
+    const mostCommonRiskCategory =
+      Object.entries(riskDistribution).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "Not enough data";
 
     const dashboard: DashboardMetrics = {
       totalDecisions,
