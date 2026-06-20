@@ -8,3 +8,6 @@ build/
 backend/data/history.json
 coverage/
 .vite/
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
