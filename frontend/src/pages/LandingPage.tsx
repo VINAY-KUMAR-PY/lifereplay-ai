@@ -21,7 +21,7 @@ const features = [
   {
     icon: GraduationCap,
     title: "CareerReplay Mode",
-    text: "Compare AI Engineering, Data Science, Software Engineering, Government Exams, Startup, and Higher Studies."
+    text: "Compare AI Engineer, Data Scientist, Software Engineer, Government Exams, Startup Founder, and Higher Studies."
   },
   {
     icon: GitCompare,
@@ -42,12 +42,19 @@ const metrics = [
 ];
 
 const useCases = [
-  "Freshers choosing a first tech domain",
-  "Students comparing higher studies vs jobs",
-  "Aspirants weighing government exams",
-  "Young builders validating startup risk",
-  "Professionals planning career switches",
-  "Teams presenting structured decision reports"
+  "Career Selection",
+  "Job Offers",
+  "Startup Decisions",
+  "Higher Studies",
+  "Certification Choices"
+];
+
+const workflow = [
+  ["Enter Decision", "Capture the choice, background, constraints, and target outcome."],
+  ["AI Simulates Outcomes", "Generate best-case, worst-case, and most-likely futures."],
+  ["Analyze Risks", "Review career, financial, personal, learning, and market risks."],
+  ["Compare Alternatives", "Evaluate competing paths with pros, cons, and trade-offs."],
+  ["Execute Action Plan", "Follow immediate, 30-day, 90-day, and long-term next steps."]
 ];
 
 export default function LandingPage() {
@@ -65,11 +72,11 @@ export default function LandingPage() {
               LifeReplay AI
             </h1>
             <p className="mt-5 max-w-2xl text-2xl font-bold leading-9 text-teal-100">
-              Career Decision Intelligence for students, freshers, and young professionals.
+              Career Decision Intelligence Platform
             </p>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
-              Simulate life and career decisions before committing. Compare career paths, understand risks, export
-              reports, and convert uncertainty into a practical execution plan.
+              Replay your future before making life-changing career decisions. Built for students, freshers, career
+              switchers, and young professionals who need clarity before committing.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -92,15 +99,15 @@ export default function LandingPage() {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <p className="text-sm font-bold text-teal-200">CareerReplay preview</p>
-                  <h2 className="mt-2 text-2xl font-black">AI Engineering vs Government Exams</h2>
+                  <h2 className="mt-2 text-2xl font-black">AI Engineer vs Government Exams</h2>
                 </div>
                 <Layers3 className="h-10 w-10 text-teal-300" />
               </div>
               <div className="mt-6 grid gap-3">
                 {[
-                  ["Career fit", "AI Engineering scores higher for product-building, portfolio proof, and market growth."],
+                  ["Career fit", "AI Engineer scores higher for product-building, portfolio proof, and market growth."],
                   ["Risk lens", "Government Exams need longer preparation runway and a backup employability plan."],
-                  ["Recommendation", "Validate AI Engineering with a 90-day portfolio sprint before full commitment."]
+                  ["Recommendation", "Validate AI Engineer with a 90-day portfolio sprint before full commitment."]
                 ].map(([label, text]) => (
                   <div key={label} className="rounded-xl border border-white/10 bg-white/10 p-4">
                     <p className="text-xs font-black uppercase tracking-wide text-teal-200">{label}</p>
@@ -158,6 +165,26 @@ export default function LandingPage() {
                 </span>
                 <h3 className="mt-5 text-lg font-black">{feature.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">{feature.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16 text-slate-950">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 max-w-3xl">
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-teal-700">Why LifeReplay AI</p>
+            <h2 className="mt-3 text-3xl font-black">A structured workflow for career decisions that matter.</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-5">
+            {workflow.map(([title, text], index) => (
+              <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+                <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950 text-sm font-black text-teal-200">
+                  {index + 1}
+                </span>
+                <h3 className="mt-5 font-black">{title}</h3>
+                <p className="mt-3 text-sm leading-6 text-slate-600">{text}</p>
               </div>
             ))}
           </div>

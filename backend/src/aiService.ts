@@ -43,11 +43,11 @@ const comparisonSchema = z.object({
 });
 
 const careerPathSchema = z.enum([
-  "AI Engineering",
-  "Data Science",
-  "Software Engineering",
+  "AI Engineer",
+  "Data Scientist",
+  "Software Engineer",
   "Government Exams",
-  "Startup",
+  "Startup Founder",
   "Higher Studies"
 ]);
 
@@ -57,6 +57,9 @@ const careerReplaySchema = z.object({
       path: careerPathSchema,
       careerFitScore: z.number().min(0).max(100),
       jobReadinessScore: z.number().min(0).max(100),
+      growthPotential: z.number().min(0).max(100),
+      salaryPotential: z.string(),
+      learningCurve: z.enum(["Beginner Friendly", "Moderate", "Steep"]),
       timeRequired: z.string(),
       riskLevel: z.enum(["Low", "Medium", "High"]),
       skillRoadmap: z.array(z.string()).min(3),
@@ -177,10 +180,12 @@ Return only valid JSON with:
 paths, finalRecommendation.
 
 Each item in paths must contain:
-path, careerFitScore, jobReadinessScore, timeRequired, riskLevel, skillRoadmap, plan30, plan90, plan180, recommendation.
+path, careerFitScore, jobReadinessScore, growthPotential, salaryPotential, learningCurve, timeRequired,
+riskLevel, skillRoadmap, plan30, plan90, plan180, recommendation.
 
 Use realistic Indian fresher context, skills, timelines, interview readiness, opportunity cost, and risk.
 Scores must be 0-100. riskLevel must be Low, Medium, or High.
+learningCurve must be Beginner Friendly, Moderate, or Steep.
 Be specific, practical, and avoid generic motivational wording.
 `;
 

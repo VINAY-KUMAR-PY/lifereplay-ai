@@ -9,7 +9,7 @@ function CompareList({ title, items, positive }: { title: string; items: string[
   const Icon = positive ? CheckCircle2 : XCircle;
 
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
       <h3 className="font-black text-slate-950">{title}</h3>
       <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
         {items.map((item) => (
@@ -24,8 +24,8 @@ function CompareList({ title, items, positive }: { title: string; items: string[
 }
 
 export default function ComparePage() {
-  const [optionA, setOptionA] = useState("Data Science");
-  const [optionB, setOptionB] = useState("Software Engineering");
+  const [optionA, setOptionA] = useState("Data Scientist");
+  const [optionB, setOptionB] = useState("Software Engineer");
   const [result, setResult] = useState<ComparisonResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -57,14 +57,17 @@ export default function ComparePage() {
         description="Enter two paths and get pros, cons, risk comparison, and a direct recommendation grounded in practical trade-offs."
       />
 
-      <form onSubmit={handleSubmit} className="mt-8 grid gap-4 rounded-md border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-[1fr_1fr_auto] lg:items-end">
+      <form
+        onSubmit={handleSubmit}
+        className="mt-8 grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:grid-cols-[1fr_1fr_auto] lg:items-end"
+      >
         <div>
           <label htmlFor="optionA" className="text-sm font-black text-slate-800">Option A</label>
           <input
             id="optionA"
             value={optionA}
             onChange={(event) => setOptionA(event.target.value)}
-            className="mt-3 w-full rounded-md border border-slate-300 px-4 py-3 text-slate-950 shadow-sm"
+            className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-950 shadow-sm outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
           />
         </div>
         <div>
@@ -73,14 +76,14 @@ export default function ComparePage() {
             id="optionB"
             value={optionB}
             onChange={(event) => setOptionB(event.target.value)}
-            className="mt-3 w-full rounded-md border border-slate-300 px-4 py-3 text-slate-950 shadow-sm"
+            className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-950 shadow-sm outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
           />
         </div>
         <Button type="submit" disabled={loading} className="lg:min-w-44">
           {loading ? <Loader2 className="animate-spin" size={18} /> : <GitCompare size={18} />}
           Compare
         </Button>
-        {error && <p className="rounded-md bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 lg:col-span-3">{error}</p>}
+        {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 lg:col-span-3">{error}</p>}
       </form>
 
       {result && (
@@ -91,17 +94,17 @@ export default function ComparePage() {
             <CompareList title={`Pros of ${result.optionB}`} items={result.prosB} positive />
             <CompareList title={`Cons of ${result.optionB}`} items={result.consB} positive={false} />
           </div>
-          <div className="rounded-md border border-teal-200 bg-teal-50 p-6">
+          <div className="rounded-2xl border border-teal-200 bg-teal-50 p-6 shadow-sm">
             <p className="text-sm font-black uppercase tracking-wide text-teal-800">Better option</p>
             <h2 className="mt-2 text-3xl font-black text-slate-950">{result.betterOption}</h2>
             <p className="mt-4 leading-7 text-slate-700">{result.explanation}</p>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
-            <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h3 className="font-black text-slate-950">Risk comparison</h3>
               <p className="mt-3 leading-7 text-slate-600">{result.riskComparison}</p>
             </div>
-            <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h3 className="font-black text-slate-950">Final recommendation</h3>
               <p className="mt-3 leading-7 text-slate-600">{result.finalRecommendation}</p>
             </div>

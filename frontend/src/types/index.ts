@@ -50,17 +50,20 @@ export interface ComparisonResult {
 }
 
 export type CareerPath =
-  | "AI Engineering"
-  | "Data Science"
-  | "Software Engineering"
+  | "AI Engineer"
+  | "Data Scientist"
+  | "Software Engineer"
   | "Government Exams"
-  | "Startup"
+  | "Startup Founder"
   | "Higher Studies";
 
 export interface CareerPathReplay {
   path: CareerPath;
   careerFitScore: number;
   jobReadinessScore: number;
+  growthPotential: number;
+  salaryPotential: string;
+  learningCurve: "Beginner Friendly" | "Moderate" | "Steep";
   timeRequired: string;
   riskLevel: RiskLevel;
   skillRoadmap: string[];
@@ -84,4 +87,6 @@ export interface DashboardMetrics {
   mostCommonRiskCategory: string;
   recentAnalyses: AnalysisResult[];
   riskDistribution: Record<string, number>;
+  confidenceTrend: number[];
+  opportunityTrend: number[];
 }

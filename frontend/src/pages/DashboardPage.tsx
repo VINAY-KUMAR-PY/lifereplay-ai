@@ -6,6 +6,37 @@ import { getDashboard } from "../services/api";
 import type { DashboardMetrics } from "../types";
 import { formatDate } from "../utils/format";
 
+function MiniTrend({ title, values, color }: { title: string; values: number[]; color: string }) {
+  const data = values.length ? values : [0];
+  const points = data
+    .map((value, index) => {
+      const x = data.length === 1 ? 96 : (index / (data.length - 1)) * 192;
+      const y = 72 - (Math.max(0, Math.min(100, value)) / 100) * 64;
+      return `${x},${y}`;
+    })
+    .join(" ");
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-lg font-black text-slate-950">{title}</h2>
+        <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-black text-slate-600">
+          {data[data.length - 1]}%
+        </span>
+      </div>
+      <svg viewBox="0 0 192 76" className="mt-5 h-28 w-full overflow-visible" role="img" aria-label={title}>
+        <path d="M0 72H192" stroke="#e2e8f0" strokeWidth="2" />
+        <polyline points={points} fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+        {data.map((value, index) => {
+          const x = data.length === 1 ? 96 : (index / (data.length - 1)) * 192;
+          const y = 72 - (Math.max(0, Math.min(100, value)) / 100) * 64;
+          return <circle key={`${value}-${index}`} cx={x} cy={y} r="4" fill={color} />;
+        })}
+      </svg>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
@@ -59,6 +90,11 @@ export default function DashboardPage() {
                 <p className="mt-2 text-3xl font-black text-slate-950">{item.value}</p>
               </div>
             ))}
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <MiniTrend title="Confidence Trend" values={dashboard.confidenceTrend} color="#14b8a6" />
+            <MiniTrend title="Opportunity Trend" values={dashboard.opportunityTrend} color="#6366f1" />
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">

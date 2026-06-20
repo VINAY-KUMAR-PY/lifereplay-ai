@@ -27,11 +27,11 @@ export default function HistoryPage() {
       <SectionHeader
         eyebrow="History"
         title="Review previous decisions."
-        description="Every analysis is saved locally by the backend so a demo judge can see continuity across the product."
+        description="Review saved career decisions, reopen reports, and compare how confidence, opportunity, and risk evolved over time."
       />
 
       {loading && (
-        <div className="mt-10 flex items-center gap-3 rounded-md border border-slate-200 bg-white p-5 text-slate-600">
+        <div className="mt-10 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
           <Loader2 className="animate-spin" size={20} />
           Loading history
         </div>
@@ -40,7 +40,7 @@ export default function HistoryPage() {
       {error && <p className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
 
       {!loading && !items.length && (
-        <div className="mt-8 rounded-md border border-slate-200 bg-white p-8 text-center shadow-sm">
+        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
           <p className="text-lg font-black text-slate-950">No decisions analyzed yet.</p>
           <p className="mt-2 text-slate-600">Run the analyzer once and the result will appear here.</p>
         </div>
@@ -55,7 +55,9 @@ export default function HistoryPage() {
                 type="button"
                 onClick={() => setSelected(item)}
                 className={`w-full rounded-md border p-4 text-left shadow-sm transition ${
-                  selected?.id === item.id ? "border-teal-400 bg-teal-50" : "border-slate-200 bg-white hover:bg-slate-50"
+                  selected?.id === item.id
+                    ? "border-teal-400 bg-teal-50 shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
+                    : "border-slate-200 bg-white hover:-translate-y-1 hover:bg-slate-50 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">

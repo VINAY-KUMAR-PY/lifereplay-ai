@@ -154,9 +154,12 @@ export function createMockComparison(optionA: string, optionB: string): Comparis
 }
 
 const careerProfiles: Record<CareerPath, Omit<CareerPathReplay, "path">> = {
-  "AI Engineering": {
+  "AI Engineer": {
     careerFitScore: 88,
     jobReadinessScore: 74,
+    growthPotential: 92,
+    salaryPotential: "High: strong upside in product AI, automation, and applied LLM roles",
+    learningCurve: "Steep",
     timeRequired: "6-9 months for entry-level readiness with a strong project portfolio",
     riskLevel: "Medium",
     skillRoadmap: [
@@ -179,9 +182,12 @@ const careerProfiles: Record<CareerPath, Omit<CareerPathReplay, "path">> = {
     recommendation:
       "Strong option if you enjoy building products, APIs, and applied AI systems more than pure theory."
   },
-  "Data Science": {
+  "Data Scientist": {
     careerFitScore: 82,
     jobReadinessScore: 68,
+    growthPotential: 86,
+    salaryPotential: "Medium to High: strongest when paired with domain expertise and analytics storytelling",
+    learningCurve: "Moderate",
     timeRequired: "7-10 months for solid analyst-to-junior data science readiness",
     riskLevel: "Medium",
     skillRoadmap: [
@@ -195,9 +201,12 @@ const careerProfiles: Record<CareerPath, Omit<CareerPathReplay, "path">> = {
     recommendation:
       "Best if you enjoy analysis, evidence, business questions, and explaining patterns to decision makers."
   },
-  "Software Engineering": {
+  "Software Engineer": {
     careerFitScore: 86,
     jobReadinessScore: 78,
+    growthPotential: 88,
+    salaryPotential: "High: broad fresher demand with strong long-term senior engineering upside",
+    learningCurve: "Moderate",
     timeRequired: "5-8 months for fresher-level readiness with disciplined DSA and projects",
     riskLevel: "Low",
     skillRoadmap: [
@@ -214,6 +223,9 @@ const careerProfiles: Record<CareerPath, Omit<CareerPathReplay, "path">> = {
   "Government Exams": {
     careerFitScore: 70,
     jobReadinessScore: 55,
+    growthPotential: 72,
+    salaryPotential: "Stable: predictable benefits if selected, but high opportunity cost during preparation",
+    learningCurve: "Steep",
     timeRequired: "12-24 months depending on exam level, consistency, and competition",
     riskLevel: "High",
     skillRoadmap: [
@@ -227,9 +239,12 @@ const careerProfiles: Record<CareerPath, Omit<CareerPathReplay, "path">> = {
     recommendation:
       "Choose this only if you have strong discipline, family support, and a clear backup path."
   },
-  Startup: {
+  "Startup Founder": {
     careerFitScore: 76,
     jobReadinessScore: 62,
+    growthPotential: 90,
+    salaryPotential: "Variable: low early certainty with very high upside if traction compounds",
+    learningCurve: "Steep",
     timeRequired: "3-6 months to validate; 12+ months to build a credible venture path",
     riskLevel: "High",
     skillRoadmap: [
@@ -246,6 +261,9 @@ const careerProfiles: Record<CareerPath, Omit<CareerPathReplay, "path">> = {
   "Higher Studies": {
     careerFitScore: 79,
     jobReadinessScore: 60,
+    growthPotential: 80,
+    salaryPotential: "Medium to High: depends on institution, specialization, funding, and post-degree placement",
+    learningCurve: "Moderate",
     timeRequired: "9-18 months for exam prep, applications, funding, and transition",
     riskLevel: "Medium",
     skillRoadmap: [
@@ -262,7 +280,7 @@ const careerProfiles: Record<CareerPath, Omit<CareerPathReplay, "path">> = {
 };
 
 export function createMockCareerReplay(paths: CareerPath[], background = ""): CareerReplayResult {
-  const selected: CareerPath[] = paths.length ? paths : ["AI Engineering", "Software Engineering", "Data Science"];
+  const selected: CareerPath[] = paths.length ? paths : ["AI Engineer", "Software Engineer", "Data Scientist"];
   const profiles = selected.map((path) => {
     const base = careerProfiles[path];
     const backgroundBoost = background.toLowerCase().includes(path.toLowerCase().split(" ")[0]) ? 4 : 0;

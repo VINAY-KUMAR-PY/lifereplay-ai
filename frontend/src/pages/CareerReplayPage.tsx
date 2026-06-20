@@ -7,15 +7,15 @@ import { replayCareers } from "../services/api";
 import type { CareerPath, CareerReplayResult } from "../types";
 
 const careerPaths: CareerPath[] = [
-  "AI Engineering",
-  "Data Science",
-  "Software Engineering",
+  "AI Engineer",
+  "Data Scientist",
+  "Software Engineer",
   "Government Exams",
-  "Startup",
+  "Startup Founder",
   "Higher Studies"
 ];
 
-const defaultSelected: CareerPath[] = ["AI Engineering", "Data Science", "Software Engineering"];
+const defaultSelected: CareerPath[] = ["AI Engineer", "Data Scientist", "Software Engineer"];
 
 function PlanBlock({ title, items }: { title: string; items: string[] }) {
   return (
@@ -71,7 +71,7 @@ export default function CareerReplayPage() {
       <SectionHeader
         eyebrow="CareerReplay Mode"
         title="Compare career paths with AI decision intelligence."
-        description="Replay AI Engineering, Data Science, Software Engineering, Government Exams, Startup, and Higher Studies with fit scores, skill roadmaps, risk levels, job readiness, and 30/90/180-day action plans."
+        description="Replay AI Engineer, Data Scientist, Software Engineer, Government Exams, Startup Founder, and Higher Studies with fit, growth, salary, risk, readiness, and 30/90/180-day action plans."
       />
 
       <form
@@ -163,9 +163,23 @@ export default function CareerReplayPage() {
                   </span>
                 </div>
 
-                <div className="mt-6 grid gap-4 lg:grid-cols-2">
+                <div className="mt-6 grid gap-4 md:grid-cols-3">
                   <ScoreRing score={path.careerFitScore} label="Career fit" />
                   <ScoreRing score={path.jobReadinessScore} label="Job readiness" />
+                  <ScoreRing score={path.growthPotential} label="Growth potential" />
+                </div>
+
+                <div className="mt-5 grid gap-3 md:grid-cols-3">
+                  {[
+                    ["Time investment", path.timeRequired],
+                    ["Salary potential", path.salaryPotential],
+                    ["Learning curve", path.learningCurve]
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{label}</p>
+                      <p className="mt-2 text-sm font-bold leading-6 text-slate-800">{value}</p>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="mt-6 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">

@@ -31,11 +31,11 @@ const compareSchema = z.object({
 });
 
 const careerPathSchema = z.enum([
-  "AI Engineering",
-  "Data Science",
-  "Software Engineering",
+  "AI Engineer",
+  "Data Scientist",
+  "Software Engineer",
   "Government Exams",
-  "Startup",
+  "Startup Founder",
   "Higher Studies"
 ]);
 
@@ -117,7 +117,9 @@ app.get("/api/dashboard", async (_req, res, next) => {
       averageOpportunityScore,
       mostCommonRiskCategory: mostCommonRiskCategory as DashboardMetrics["mostCommonRiskCategory"],
       recentAnalyses: history.slice(0, 5),
-      riskDistribution
+      riskDistribution,
+      confidenceTrend: history.slice(0, 8).reverse().map((item) => item.confidenceScore),
+      opportunityTrend: history.slice(0, 8).reverse().map((item) => item.opportunityScore)
     };
 
     res.json(dashboard);

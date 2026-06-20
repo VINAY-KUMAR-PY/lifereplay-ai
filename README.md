@@ -1,6 +1,8 @@
 # LifeReplay AI
 
-Premium AI-powered Career Decision Intelligence Platform for Bharat Academix CodeQuest.
+LifeReplay AI - Career Decision Intelligence Platform for Bharat Academix CodeQuest.
+
+**Tagline:** Replay your future before making life-changing career decisions.
 
 ## Team
 
@@ -13,7 +15,7 @@ Premium AI-powered Career Decision Intelligence Platform for Bharat Academix Cod
 
 ## Problem Statement
 
-Students, freshers, and young professionals often make career-defining decisions with incomplete signals. A student may need to choose between AI Engineering, Data Science, Software Engineering, Government Exams, Startup, or Higher Studies, but the comparison usually happens through scattered advice, social media opinions, peer pressure, and family expectations.
+Students, freshers, career switchers, and young professionals often make career-defining decisions with incomplete signals. A student may need to choose between AI Engineer, Data Scientist, Software Engineer, Government Exams, Startup Founder, or Higher Studies, but the comparison usually happens through scattered advice, social media opinions, peer pressure, and family expectations.
 
 The result is avoidable confusion: unclear skill roadmaps, underestimated risk, poor timeline planning, and no structured way to compare future outcomes before committing time, money, and effort.
 
@@ -28,15 +30,15 @@ The platform uses Gemini when a backend API key is configured. If Gemini is unav
 - Premium SaaS-style responsive interface
 - AI Decision Analyzer for best-case, worst-case, and most-likely futures
 - CareerReplay Mode for comparing:
-  - AI Engineering
-  - Data Science
-  - Software Engineering
+  - AI Engineer
+  - Data Scientist
+  - Software Engineer
   - Government Exams
-  - Startup
+  - Startup Founder
   - Higher Studies
-- Career fit score, job readiness score, risk level, time required, skill roadmap, and 30/90/180-day plans
+- Career fit score, growth potential, job readiness score, salary potential, learning curve, risk level, time investment, skill roadmap, and 30/90/180-day plans
 - Option comparison with pros, cons, risk comparison, and final recommendation
-- Dashboard with total decisions, average confidence, average opportunity score, most common risk, recent decisions, and risk distribution
+- Executive dashboard with total decisions, average confidence, average opportunity score, most common risk, recent decisions, risk distribution, confidence trend, and opportunity trend
 - PDF export for decision reports
 - Local backend history storage for MVP continuity
 - Gemini API integration with polished fallback responses
@@ -92,6 +94,24 @@ Core frontend modules:
 | `POST` | `/api/career-replay` | Generate career path intelligence |
 | `GET` | `/api/history` | Return saved analyses |
 | `GET` | `/api/dashboard` | Return dashboard metrics |
+
+## CareerReplay Explanation
+
+CareerReplay is the platform's career-path intelligence mode. It compares supported career routes against a user's background and returns:
+
+- Career Fit Score
+- Growth Potential
+- Risk Level
+- Time Investment
+- Salary Potential
+- Skill Roadmap
+- Learning Curve
+- 30 Day Plan
+- 90 Day Plan
+- 180 Day Plan
+- Final Recommendation
+
+The mode uses Gemini when `GEMINI_API_KEY` is available. If Gemini is not configured, the backend returns polished mock guidance so hackathon demos stay reliable.
 
 ## Setup Instructions
 
