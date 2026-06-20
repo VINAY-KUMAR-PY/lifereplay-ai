@@ -1,10 +1,11 @@
-import { BrainCircuit, Gauge, GitCompare, History, Home, Menu, X } from "lucide-react";
+import { BrainCircuit, Gauge, GitCompare, GraduationCap, History, Home, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
 const navItems = [
   { href: "/", label: "Home", icon: Home },
   { href: "/analyze", label: "Analyze", icon: BrainCircuit },
+  { href: "/career-replay", label: "CareerReplay", icon: GraduationCap },
   { href: "/compare", label: "Compare", icon: GitCompare },
   { href: "/dashboard", label: "Dashboard", icon: Gauge },
   { href: "/history", label: "History", icon: History }

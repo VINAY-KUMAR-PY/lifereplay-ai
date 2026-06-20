@@ -1,69 +1,134 @@
 # LifeReplay AI
 
-**See possible futures before making important life decisions.**
+Premium AI-powered Career Decision Intelligence Platform for Bharat Academix CodeQuest.
 
-LifeReplay AI is a hackathon MVP for Bharat Academix CodeQuest 2026. It helps students, job seekers, professionals, and entrepreneurs explore possible outcomes before committing to important choices.
+## Team
+
+| Item | Details |
+| --- | --- |
+| Team / Member Name | Aeddula Vinay Kumar |
+| Institution | Vignan Institute of Technology & Science |
+| Project | LifeReplay AI |
+| Repository | https://github.com/VINAY-KUMAR-PY/lifereplay-ai |
 
 ## Problem Statement
 
-Important career, education, finance, and startup decisions are often made with incomplete information. People usually compare options informally, rely on scattered advice, or wait until consequences become visible. This creates avoidable risk, stress, and missed opportunities.
+Students, freshers, and young professionals often make career-defining decisions with incomplete signals. A student may need to choose between AI Engineering, Data Science, Software Engineering, Government Exams, Startup, or Higher Studies, but the comparison usually happens through scattered advice, social media opinions, peer pressure, and family expectations.
+
+The result is avoidable confusion: unclear skill roadmaps, underestimated risk, poor timeline planning, and no structured way to compare future outcomes before committing time, money, and effort.
 
 ## Proposed Solution
 
-LifeReplay AI turns a decision into structured future simulations. The app generates best-case, worst-case, and most-likely outcomes, future timelines, risk breakdowns, confidence scoring, decision comparisons, and action plans. When a Gemini API key is available, the backend uses Gemini. Without a key, the app still works with high-quality local mock intelligence.
+LifeReplay AI turns career uncertainty into structured decision intelligence. Users can analyze a decision, compare two options, replay multiple career paths, view saved history, inspect decision analytics, and export a PDF report for review.
 
-## Features
+The platform uses Gemini when a backend API key is configured. If Gemini is unavailable, the product remains fully demo-ready with high-quality mock intelligence, preserving all core workflows.
 
-- Modern SaaS landing page with hackathon-ready positioning
-- AI-powered decision analyzer
-- Future timeline for 6 months, 1 year, 3 years, and 5 years
-- Option A vs Option B comparison
-- Action plan generation
-- Local backend history storage
-- Dashboard with metrics, recent analyses, risk trends, and progress cards
-- Gemini API integration with mock fallback
-- Responsive React + Vite + Tailwind UI
-- Express backend with API documentation
+## Key Features
+
+- Premium SaaS-style responsive interface
+- AI Decision Analyzer for best-case, worst-case, and most-likely futures
+- CareerReplay Mode for comparing:
+  - AI Engineering
+  - Data Science
+  - Software Engineering
+  - Government Exams
+  - Startup
+  - Higher Studies
+- Career fit score, job readiness score, risk level, time required, skill roadmap, and 30/90/180-day plans
+- Option comparison with pros, cons, risk comparison, and final recommendation
+- Dashboard with total decisions, average confidence, average opportunity score, most common risk, recent decisions, and risk distribution
+- PDF export for decision reports
+- Local backend history storage for MVP continuity
+- Gemini API integration with polished fallback responses
+- CORS-enabled Express API
 
 ## Tech Stack
 
-- Frontend: React, Vite, TypeScript, Tailwind CSS, React Router, Lucide React
-- Backend: Node.js, Express, TypeScript
-- AI: Gemini API via `@google/generative-ai`
-- Storage: Lightweight JSON file storage for MVP history
+| Layer | Technology |
+| --- | --- |
+| Frontend | React, Vite, TypeScript, Tailwind CSS, React Router |
+| UI | Lucide React icons, responsive cards, gradients, score visuals |
+| Backend | Node.js, Express, TypeScript |
+| AI | Google Gemini via `@google/generative-ai` |
+| PDF | `jspdf` |
+| Storage | Local JSON history file for MVP |
 
 ## Architecture
 
 ```text
-frontend React app
-  -> API service
-  -> backend Express routes
+React + Vite frontend
+  -> API service layer
+  -> Express TypeScript backend
   -> AI service
   -> Gemini API or mock fallback
-  -> JSON history store
+  -> Local JSON history store
 ```
 
-See [docs/architecture.md](docs/architecture.md) for more detail.
+Core backend modules:
 
-## Installation
+- `backend/src/server.ts` - API routes, CORS, validation, environment loading
+- `backend/src/aiService.ts` - Gemini prompts, schemas, fallback routing
+- `backend/src/mockAi.ts` - offline-safe mock intelligence
+- `backend/src/storage.ts` - local decision history persistence
+- `backend/src/types.ts` - shared backend contracts
+
+Core frontend modules:
+
+- `frontend/src/pages/AnalyzePage.tsx`
+- `frontend/src/pages/CareerReplayPage.tsx`
+- `frontend/src/pages/ComparePage.tsx`
+- `frontend/src/pages/DashboardPage.tsx`
+- `frontend/src/pages/HistoryPage.tsx`
+- `frontend/src/components/ResultPanel.tsx`
+- `frontend/src/utils/pdf.ts`
+
+## API Endpoints
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `GET` | `/health` | Backend health check |
+| `POST` | `/api/analyze` | Analyze a decision and save it to history |
+| `POST` | `/api/compare` | Compare two options |
+| `POST` | `/api/career-replay` | Generate career path intelligence |
+| `GET` | `/api/history` | Return saved analyses |
+| `GET` | `/api/dashboard` | Return dashboard metrics |
+
+## Setup Instructions
+
+Install root tooling:
 
 ```bash
-git clone https://github.com/VINAY-KUMAR-PY/lifereplay-ai.git
-cd lifereplay-ai
+npm install
 ```
 
 Install backend dependencies:
 
 ```bash
-cd backend
-npm install
+npm install --prefix backend
 ```
 
 Install frontend dependencies:
 
 ```bash
-cd ../frontend
-npm install
+npm install --prefix frontend
+```
+
+Build the complete project:
+
+```bash
+npm run build
+```
+
+Run backend and frontend together:
+
+```bash
+npm run dev
+```
+
+Open:
+
+```text
+http://localhost:5173
 ```
 
 ## Environment Variables
@@ -76,78 +141,50 @@ FRONTEND_URL=http://localhost:5173
 GEMINI_API_KEY=your_gemini_api_key_here
 ```
 
-`GEMINI_API_KEY` is optional for local demos. If it is missing, the backend logs a clear fallback message and serves polished mock AI responses.
-
 Create `frontend/.env` from `frontend/.env.example`.
 
 ```env
 VITE_API_URL=http://localhost:5000
 ```
 
-## API Routes
-
-- `POST /api/analyze` analyzes a life decision
-- `POST /api/compare` compares two options
-- `GET /api/history` returns previous analyses
-- `GET /api/dashboard` returns dashboard metrics
-- `GET /health` returns backend health status
-
-See [docs/api-docs.md](docs/api-docs.md) for request and response examples.
-
-## Run Locally
-
-Start the backend:
-
-```bash
-cd backend
-npm run dev
-```
-
-Start the frontend:
-
-```bash
-cd frontend
-npm run dev
-```
-
-Open `http://localhost:5173`.
-
-## Deployment
-
-Backend deployment options:
-
-- Render, Railway, Fly.io, or any Node.js host
-- Set `GEMINI_API_KEY`, `PORT`, and `FRONTEND_URL`
-- Use `npm run build` and `npm start`
-
-Frontend deployment options:
-
-- Vercel, Netlify, or Cloudflare Pages
-- Set `VITE_API_URL` to the deployed backend URL
-- Use `npm run build`
-
-## Future Scope
-
-- User authentication and private decision workspaces
-- PostgreSQL or MongoDB persistence
-- PDF report export
-- Saved scenarios and follow-up reminders
-- AI mentor chat grounded in each simulation
-- Mobile app for students and job seekers
-- Vertical-specific modes for careers, education, finance, and startups
+`GEMINI_API_KEY` is optional for local demos. Without it, the backend uses mock intelligence so Analyze, Compare, CareerReplay, Dashboard, and History remain usable.
 
 ## Hackathon Relevance
 
-LifeReplay AI scores strongly across the CodeQuest criteria:
+LifeReplay AI fits Bharat Academix CodeQuest because it solves a real student and fresher problem: career confusion. The product is not just a chatbot; it is a structured decision platform with scoring, timelines, risk categories, career roadmaps, analytics, and downloadable reports.
 
-- Innovation: future simulation rather than a generic chatbot
-- Technical implementation: full-stack app, AI service layer, fallback intelligence, typed frontend
-- Problem solving: addresses real uncertainty in high-impact life decisions
-- User experience: fast, polished, responsive SaaS interface
-- Scalability: documented path to multi-user SaaS and vertical expansion
+It demonstrates:
 
-## Team
+- Full-stack engineering
+- AI integration with fallback reliability
+- Practical student-focused problem solving
+- Polished product thinking
+- Scalable architecture for future SaaS expansion
 
-- Team / Member Name: _Add your team details here_
-- Institution: _Add institution name here_
-- Contact: _Add email or portfolio link here_
+## Future Scope
+
+- User accounts and private decision workspaces
+- Cloud database storage with PostgreSQL or MongoDB
+- Saved CareerReplay sessions
+- College-specific career guidance templates
+- Resume and portfolio scoring
+- Mentor review workflows
+- Follow-up reminders for 30/90/180-day plans
+- Role-specific interview readiness tests
+- Admin analytics for institutions
+
+## Scalability Explanation
+
+The MVP uses local JSON storage for speed and hackathon simplicity. The architecture can scale by replacing `storage.ts` with a database repository layer, adding authentication, and storing each analysis under a user account. Gemini calls are already isolated in `aiService.ts`, so model providers can be swapped or upgraded without changing UI routes. The frontend page structure supports new vertical modes such as education, finance, entrepreneurship, and interview readiness.
+
+## Safety Notes
+
+The repository should not commit:
+
+- `.env` files
+- `node_modules`
+- `backend/data/history.json`
+- `dist` or `build` folders
+- cache or temporary files
+
+These are already ignored through `.gitignore`.

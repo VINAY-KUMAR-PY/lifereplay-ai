@@ -1,5 +1,7 @@
-import { ArrowRight, CheckCircle2, Clock3, ShieldAlert, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, Download, ShieldAlert, Sparkles, TrendingUp } from "lucide-react";
 import type { AnalysisResult } from "../types";
+import { downloadDecisionReport } from "../utils/pdf";
+import { Button } from "./Button";
 import { ScoreRing } from "./ScoreRing";
 
 function ListBlock({ title, items }: { title: string; items: string[] }) {
@@ -21,6 +23,17 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
 export function ResultPanel({ result }: { result: AnalysisResult }) {
   return (
     <section className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div>
+          <p className="text-sm font-black uppercase tracking-[0.18em] text-teal-700">Decision report</p>
+          <h2 className="mt-1 text-xl font-black text-slate-950">Export this replay for review</h2>
+        </div>
+        <Button type="button" onClick={() => downloadDecisionReport(result)}>
+          <Download size={18} />
+          Download Decision Report
+        </Button>
+      </div>
+
       <div className="grid gap-4 lg:grid-cols-2">
         <ScoreRing score={result.confidenceScore} label="Confidence" />
         <ScoreRing score={result.opportunityScore} label="Opportunity" />

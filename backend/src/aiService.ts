@@ -1,8 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { nanoid } from "nanoid";
 import { z } from "zod";
-import { createMockAnalysis, createMockComparison } from "./mockAi.js";
-import type { AnalysisResult, ComparisonResult } from "./types.js";
+import { createMockAnalysis, createMockCareerReplay, createMockComparison } from "./mockAi.js";
+import type { AnalysisResult, CareerPath, CareerReplayResult, ComparisonResult } from "./types.js";
 
 const analysisSchema = z.object({
   bestCaseFuture: z.string(),
@@ -40,6 +40,33 @@ const comparisonSchema = z.object({
   riskComparison: z.string(),
   betterOption: z.string(),
   explanation: z.string()
+});
+
+const careerPathSchema = z.enum([
+  "AI Engineering",
+  "Data Science",
+  "Software Engineering",
+  "Government Exams",
+  "Startup",
+  "Higher Studies"
+]);
+
+const careerReplaySchema = z.object({
+  paths: z.array(
+    z.object({
+      path: careerPathSchema,
+      careerFitScore: z.number().min(0).max(100),
+      jobReadinessScore: z.number().min(0).max(100),
+      timeRequired: z.string(),
+      riskLevel: z.enum(["Low", "Medium", "High"]),
+      skillRoadmap: z.array(z.string()).min(3),
+      plan30: z.array(z.string()).min(2),
+      plan90: z.array(z.string()).min(2),
+      plan180: z.array(z.string()).min(2),
+      recommendation: z.string()
+    })
+  ).min(1),
+  finalRecommendation: z.string()
 });
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -128,5 +155,45 @@ Be practical, specific, and useful for a hackathon demo.
   } catch (error) {
     console.error("[LifeReplay AI] Gemini compare failed. Falling back to mock response.", error);
     return createMockComparison(optionA, optionB);
+  }
+}
+
+export async function replayCareers(paths: CareerPath[], background = ""): Promise<CareerReplayResult> {
+  if (!model) {
+    return createMockCareerReplay(paths, background);
+  }
+
+  try {
+    const prompt = `
+You are LifeReplay AI CareerReplay, a career decision intelligence engine for Indian students, freshers, and young professionals.
+
+Compare these career paths:
+${paths.map((path) => `- ${path}`).join("\n")}
+
+User background:
+"${background || "No extra background provided"}"
+
+Return only valid JSON with:
+paths, finalRecommendation.
+
+Each item in paths must contain:
+path, careerFitScore, jobReadinessScore, timeRequired, riskLevel, skillRoadmap, plan30, plan90, plan180, recommendation.
+
+Use realistic Indian fresher context, skills, timelines, interview readiness, opportunity cost, and risk.
+Scores must be 0-100. riskLevel must be Low, Medium, or High.
+Be specific, practical, and avoid generic motivational wording.
+`;
+
+    const result = await model.generateContent(prompt);
+    const parsed = careerReplaySchema.parse(extractJson(result.response.text()));
+
+    return {
+      id: nanoid(),
+      createdAt: new Date().toISOString(),
+      ...parsed
+    };
+  } catch (error) {
+    console.error("[LifeReplay AI] Gemini career replay failed. Falling back to mock response.", error);
+    return createMockCareerReplay(paths, background);
   }
 }

@@ -49,9 +49,43 @@ export interface ComparisonResult {
   explanation: string;
 }
 
+export type CareerPath =
+  | "AI Engineering"
+  | "Data Science"
+  | "Software Engineering"
+  | "Government Exams"
+  | "Startup"
+  | "Higher Studies";
+
+export interface CareerReplayRequest {
+  paths: CareerPath[];
+  background?: string;
+}
+
+export interface CareerPathReplay {
+  path: CareerPath;
+  careerFitScore: number;
+  jobReadinessScore: number;
+  timeRequired: string;
+  riskLevel: "Low" | "Medium" | "High";
+  skillRoadmap: string[];
+  plan30: string[];
+  plan90: string[];
+  plan180: string[];
+  recommendation: string;
+}
+
+export interface CareerReplayResult {
+  id: string;
+  createdAt: string;
+  paths: CareerPathReplay[];
+  finalRecommendation: string;
+}
+
 export interface DashboardMetrics {
   totalDecisions: number;
   averageConfidenceScore: number;
+  averageOpportunityScore: number;
   mostCommonRiskCategory: RiskCategory | "Not enough data";
   recentAnalyses: AnalysisResult[];
   riskDistribution: Record<string, number>;

@@ -1,5 +1,12 @@
 import { nanoid } from "nanoid";
-import type { AnalysisResult, ComparisonResult, RiskCategory } from "./types.js";
+import type {
+  AnalysisResult,
+  CareerPath,
+  CareerPathReplay,
+  CareerReplayResult,
+  ComparisonResult,
+  RiskCategory
+} from "./types.js";
 
 function clampScore(score: number) {
   return Math.max(0, Math.min(100, Math.round(score)));
@@ -143,5 +150,135 @@ export function createMockComparison(optionA: string, optionB: string): Comparis
     riskComparison: `${optionA} carries higher execution risk, while ${optionB} carries higher regret risk if it is chosen mainly for comfort. The better choice is the one you can validate fastest with real-world feedback.`,
     betterOption,
     explanation: `${betterOption} appears stronger for an MVP recommendation because it offers clearer momentum, stronger proof-building potential, and a better path to visible outcomes within 90 days.`
+  };
+}
+
+const careerProfiles: Record<CareerPath, Omit<CareerPathReplay, "path">> = {
+  "AI Engineering": {
+    careerFitScore: 88,
+    jobReadinessScore: 74,
+    timeRequired: "6-9 months for entry-level readiness with a strong project portfolio",
+    riskLevel: "Medium",
+    skillRoadmap: [
+      "Python, data structures, APIs, and Git fundamentals",
+      "Machine learning basics, prompt engineering, embeddings, and LLM app patterns",
+      "Build 3 deployed AI products with evaluation, guardrails, and clear documentation"
+    ],
+    plan30: [
+      "Finish Python/TypeScript fundamentals and ship one AI utility project",
+      "Study LLM APIs, prompt design, JSON validation, and fallback handling"
+    ],
+    plan90: [
+      "Build a portfolio app using Gemini or OpenAI with authentication-ready architecture",
+      "Practice system design, model evaluation, and production debugging"
+    ],
+    plan180: [
+      "Apply for AI engineering internships or junior roles with 3 polished demos",
+      "Contribute to an open-source AI tool or publish technical case studies"
+    ],
+    recommendation:
+      "Strong option if you enjoy building products, APIs, and applied AI systems more than pure theory."
+  },
+  "Data Science": {
+    careerFitScore: 82,
+    jobReadinessScore: 68,
+    timeRequired: "7-10 months for solid analyst-to-junior data science readiness",
+    riskLevel: "Medium",
+    skillRoadmap: [
+      "Statistics, SQL, Python, pandas, visualization, and experiment thinking",
+      "Regression, classification, forecasting, model validation, and storytelling",
+      "Domain projects with dashboards, notebooks, and business recommendations"
+    ],
+    plan30: ["Complete SQL and pandas practice", "Analyze two public datasets with clear business insights"],
+    plan90: ["Build a forecasting or recommendation project", "Create a portfolio with notebooks and dashboards"],
+    plan180: ["Apply for data analyst/data science internships", "Practice case studies and metric interpretation"],
+    recommendation:
+      "Best if you enjoy analysis, evidence, business questions, and explaining patterns to decision makers."
+  },
+  "Software Engineering": {
+    careerFitScore: 86,
+    jobReadinessScore: 78,
+    timeRequired: "5-8 months for fresher-level readiness with disciplined DSA and projects",
+    riskLevel: "Low",
+    skillRoadmap: [
+      "Data structures, algorithms, JavaScript/TypeScript, React, Node.js, and databases",
+      "Testing, Git workflows, deployment, API design, and clean code",
+      "Two full-stack projects with real users or measurable usage"
+    ],
+    plan30: ["Set a daily DSA routine", "Build one polished full-stack feature end to end"],
+    plan90: ["Ship a production-style app with auth-ready APIs", "Practice interviews and code reviews"],
+    plan180: ["Apply broadly to fresher roles", "Refine resume around deployed projects and impact metrics"],
+    recommendation:
+      "Most stable choice if you want broad job options and can sustain project-building plus interview prep."
+  },
+  "Government Exams": {
+    careerFitScore: 70,
+    jobReadinessScore: 55,
+    timeRequired: "12-24 months depending on exam level, consistency, and competition",
+    riskLevel: "High",
+    skillRoadmap: [
+      "Syllabus mastery, current affairs, quantitative aptitude, reasoning, and writing practice",
+      "Mock tests, mistake logs, revision cycles, and time management",
+      "Backup employability plan to protect opportunity cost"
+    ],
+    plan30: ["Pick one target exam and map the syllabus", "Take a baseline mock test and identify weak areas"],
+    plan90: ["Complete first syllabus pass", "Build weekly mock-test and revision discipline"],
+    plan180: ["Reach timed-test consistency", "Create a backup plan for internships, skills, or alternate exams"],
+    recommendation:
+      "Choose this only if you have strong discipline, family support, and a clear backup path."
+  },
+  Startup: {
+    careerFitScore: 76,
+    jobReadinessScore: 62,
+    timeRequired: "3-6 months to validate; 12+ months to build a credible venture path",
+    riskLevel: "High",
+    skillRoadmap: [
+      "Customer discovery, MVP building, sales, pricing, product analytics, and storytelling",
+      "Lean experiments, landing pages, user interviews, and retention metrics",
+      "Basic finance, legal awareness, and founder resilience"
+    ],
+    plan30: ["Interview 20 potential users", "Launch a landing page or no-code MVP"],
+    plan90: ["Ship a usable MVP and measure retention", "Test pricing or pilot partnerships"],
+    plan180: ["Decide to continue, pivot, or pause based on traction", "Build a financial runway plan"],
+    recommendation:
+      "High-upside path if you can tolerate uncertainty and validate demand before overbuilding."
+  },
+  "Higher Studies": {
+    careerFitScore: 79,
+    jobReadinessScore: 60,
+    timeRequired: "9-18 months for exam prep, applications, funding, and transition",
+    riskLevel: "Medium",
+    skillRoadmap: [
+      "Entrance exams, academic projects, SOP/profile building, and recommendation planning",
+      "Scholarship research, financial planning, and specialization selection",
+      "Research or internship proof aligned with the target program"
+    ],
+    plan30: ["Shortlist programs and exam requirements", "Estimate cost, funding, and expected career return"],
+    plan90: ["Start test prep and strengthen academic projects", "Connect with alumni from target programs"],
+    plan180: ["Finalize applications and funding strategy", "Build a transition plan for skills and internships"],
+    recommendation:
+      "Good choice if the degree directly compounds your target career and the financial plan is realistic."
+  }
+};
+
+export function createMockCareerReplay(paths: CareerPath[], background = ""): CareerReplayResult {
+  const selected: CareerPath[] = paths.length ? paths : ["AI Engineering", "Software Engineering", "Data Science"];
+  const profiles = selected.map((path) => {
+    const base = careerProfiles[path];
+    const backgroundBoost = background.toLowerCase().includes(path.toLowerCase().split(" ")[0]) ? 4 : 0;
+    return {
+      path,
+      ...base,
+      careerFitScore: clampScore(base.careerFitScore + backgroundBoost),
+      jobReadinessScore: clampScore(base.jobReadinessScore + Math.floor(backgroundBoost / 2))
+    };
+  });
+  const best = [...profiles].sort((a, b) => b.careerFitScore + b.jobReadinessScore - (a.careerFitScore + a.jobReadinessScore))[0];
+
+  return {
+    id: nanoid(),
+    createdAt: new Date().toISOString(),
+    paths: profiles,
+    finalRecommendation: `${best.path} is the strongest near-term path because it balances fit, readiness, and practical execution risk. Use the 30/90/180 day plan to validate it before making a long-term commitment.`
   };
 }

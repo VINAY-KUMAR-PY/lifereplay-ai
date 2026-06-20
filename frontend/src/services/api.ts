@@ -1,4 +1,4 @@
-import type { AnalysisResult, ComparisonResult, DashboardMetrics } from "../types";
+import type { AnalysisResult, CareerPath, CareerReplayResult, ComparisonResult, DashboardMetrics } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
@@ -30,6 +30,13 @@ export function compareOptions(optionA: string, optionB: string) {
   return request<ComparisonResult>("/api/compare", {
     method: "POST",
     body: JSON.stringify({ optionA, optionB })
+  });
+}
+
+export function replayCareers(paths: CareerPath[], background: string) {
+  return request<CareerReplayResult>("/api/career-replay", {
+    method: "POST",
+    body: JSON.stringify({ paths, background })
   });
 }
 

@@ -1,4 +1,4 @@
-import { Activity, BarChart3, Gauge, Loader2, ShieldAlert } from "lucide-react";
+import { Activity, BarChart3, Gauge, Loader2, ShieldAlert, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { SectionHeader } from "../components/SectionHeader";
@@ -19,6 +19,8 @@ export default function DashboardPage() {
   }, []);
 
   const maxRiskValue = Math.max(...Object.values(dashboard?.riskDistribution ?? { none: 1 }));
+  const confidence = dashboard?.averageConfidenceScore ?? 0;
+  const opportunity = dashboard?.averageOpportunityScore ?? 0;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -39,14 +41,20 @@ export default function DashboardPage() {
 
       {dashboard && (
         <section className="mt-8 space-y-6">
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             {[
               { icon: Activity, label: "Total decisions", value: dashboard.totalDecisions },
               { icon: Gauge, label: "Average confidence", value: `${dashboard.averageConfidenceScore}%` },
+              { icon: Sparkles, label: "Average opportunity", value: `${dashboard.averageOpportunityScore}%` },
               { icon: ShieldAlert, label: "Most common risk", value: dashboard.mostCommonRiskCategory }
             ].map((item) => (
-              <div key={item.label} className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
-                <item.icon className="h-6 w-6 text-teal-700" />
+              <div
+                key={item.label}
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,0.06)]"
+              >
+                <span className="grid h-11 w-11 place-items-center rounded-xl bg-slate-950 text-teal-200">
+                  <item.icon className="h-5 w-5" />
+                </span>
                 <p className="mt-5 text-sm font-bold text-slate-500">{item.label}</p>
                 <p className="mt-2 text-3xl font-black text-slate-950">{item.value}</p>
               </div>
@@ -54,7 +62,28 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+                <h2 className="text-lg font-black text-slate-950">Confidence and opportunity</h2>
+                <div className="mt-5 space-y-5">
+                  {[
+                    ["Average confidence", confidence, "bg-teal-500"],
+                    ["Average opportunity", opportunity, "bg-indigo-500"]
+                  ].map(([label, value, color]) => (
+                    <div key={label as string}>
+                      <div className="mb-2 flex justify-between text-sm font-bold text-slate-700">
+                        <span>{label as string}</span>
+                        <span>{value as number}%</span>
+                      </div>
+                      <div className="h-3 overflow-hidden rounded-full bg-slate-100">
+                        <div className={`h-full rounded-full ${color as string}`} style={{ width: `${value as number}%` }} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <div className="mb-5 flex items-center gap-2">
                 <BarChart3 className="text-teal-700" size={20} />
                 <h2 className="text-lg font-black text-slate-950">Risk distribution</h2>
@@ -69,7 +98,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="h-3 rounded-full bg-slate-100">
                         <div
-                          className="h-3 rounded-full bg-teal-500"
+                          className="h-3 rounded-full bg-gradient-to-r from-teal-500 to-indigo-500"
                           style={{ width: `${Math.max(10, (value / maxRiskValue) * 100)}%` }}
                         />
                       </div>
@@ -79,9 +108,10 @@ export default function DashboardPage() {
               ) : (
                 <p className="text-sm leading-6 text-slate-600">Analyze decisions to build risk insights.</p>
               )}
+              </div>
             </div>
 
-            <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
               <h2 className="text-lg font-black text-slate-950">Recent analyses</h2>
               <div className="mt-4 space-y-3">
                 {dashboard.recentAnalyses.length ? (

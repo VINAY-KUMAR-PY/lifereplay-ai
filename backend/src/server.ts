@@ -6,7 +6,7 @@ import cors from "cors";
 import express from "express";
 import { z } from "zod";
 
-const { analyzeDecision, compareOptions } = await import("./aiService.js");
+const { analyzeDecision, compareOptions, replayCareers } = await import("./aiService.js");
 import { readHistory, saveAnalysis } from "./storage.js";
 import type { DashboardMetrics } from "./types.js";
 
@@ -28,6 +28,20 @@ const decisionSchema = z.object({
 const compareSchema = z.object({
   optionA: z.string().trim().min(2, "Option A is required.").max(240),
   optionB: z.string().trim().min(2, "Option B is required.").max(240)
+});
+
+const careerPathSchema = z.enum([
+  "AI Engineering",
+  "Data Science",
+  "Software Engineering",
+  "Government Exams",
+  "Startup",
+  "Higher Studies"
+]);
+
+const careerReplaySchema = z.object({
+  paths: z.array(careerPathSchema).min(1, "Select at least one career path.").max(6),
+  background: z.string().trim().max(500).optional()
 });
 
 app.get("/health", (_req, res) => {
@@ -59,6 +73,16 @@ app.post("/api/compare", async (req, res, next) => {
   }
 });
 
+app.post("/api/career-replay", async (req, res, next) => {
+  try {
+    const { paths, background } = careerReplaySchema.parse(req.body);
+    const replay = await replayCareers(paths, background);
+    res.status(200).json(replay);
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/history", async (_req, res, next) => {
   try {
     res.json(await readHistory());
@@ -75,6 +99,9 @@ app.get("/api/dashboard", async (_req, res, next) => {
     const averageConfidenceScore = totalDecisions
       ? Math.round(history.reduce((sum, item) => sum + item.confidenceScore, 0) / totalDecisions)
       : 0;
+    const averageOpportunityScore = totalDecisions
+      ? Math.round(history.reduce((sum, item) => sum + item.opportunityScore, 0) / totalDecisions)
+      : 0;
 
     const riskDistribution = history.reduce<Record<string, number>>((acc, item) => {
       acc[item.dominantRiskCategory] = (acc[item.dominantRiskCategory] ?? 0) + 1;
@@ -87,6 +114,7 @@ app.get("/api/dashboard", async (_req, res, next) => {
     const dashboard: DashboardMetrics = {
       totalDecisions,
       averageConfidenceScore,
+      averageOpportunityScore,
       mostCommonRiskCategory: mostCommonRiskCategory as DashboardMetrics["mostCommonRiskCategory"],
       recentAnalyses: history.slice(0, 5),
       riskDistribution
