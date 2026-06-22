@@ -1,6 +1,7 @@
 import type { AnalysisResult, CareerPath, CareerReplayResult, ComparisonResult, DashboardMetrics, FutureSimulationResult, RecruiterViewResult } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+/** Empty string uses same-origin relative `/api` (Docker/nginx production). Set VITE_API_URL for local dev. */
+export const API_URL = import.meta.env.VITE_API_URL ?? "";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}${path}`, {

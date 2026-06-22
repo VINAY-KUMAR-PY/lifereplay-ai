@@ -10,9 +10,9 @@ function CompareList({ title, items, positive }: { title: string; items: string[
   const Icon = positive ? CheckCircle2 : XCircle;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
-      <h3 className="font-black text-slate-950">{title}</h3>
-      <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900">
+      <h3 className="font-black text-slate-950 dark:text-slate-50">{title}</h3>
+      <ul className="mt-4 space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
         {items.map((item) => (
           <li key={item} className="flex gap-2">
             <Icon className={`mt-1 h-4 w-4 flex-none ${positive ? "text-teal-600" : "text-rose-600"}`} />
@@ -60,31 +60,31 @@ export default function ComparePage() {
 
       <form
         onSubmit={handleSubmit}
-        className="mt-8 grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:grid-cols-[1fr_1fr_auto] lg:items-end"
+        className="mt-8 grid gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900 lg:grid-cols-[1fr_1fr_auto] lg:items-end"
       >
         <div>
-          <label htmlFor="optionA" className="text-sm font-black text-slate-800">Option A</label>
+          <label htmlFor="optionA" className="text-sm font-black text-slate-800 dark:text-slate-100">Option A</label>
           <input
             id="optionA"
             value={optionA}
             onChange={(event) => setOptionA(event.target.value)}
-            className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-950 shadow-sm outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+            className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 shadow-sm outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-teal-900/30"
           />
         </div>
         <div>
-          <label htmlFor="optionB" className="text-sm font-black text-slate-800">Option B</label>
+          <label htmlFor="optionB" className="text-sm font-black text-slate-800 dark:text-slate-100">Option B</label>
           <input
             id="optionB"
             value={optionB}
             onChange={(event) => setOptionB(event.target.value)}
-            className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-950 shadow-sm outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+            className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-950 shadow-sm outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-teal-900/30"
           />
         </div>
         <Button type="submit" disabled={loading} className="lg:min-w-44">
           {loading ? <Loader2 className="animate-spin" size={18} /> : <GitCompare size={18} />}
           Compare
         </Button>
-        {error && <p role="alert" className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 lg:col-span-3">{error}</p>}
+        {error && <p role="alert" className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300 lg:col-span-3">{error}</p>}
       </form>
 
       {result && (
@@ -95,19 +95,19 @@ export default function ComparePage() {
             <CompareList title={`Pros of ${result.optionB}`} items={result.prosB} positive />
             <CompareList title={`Cons of ${result.optionB}`} items={result.consB} positive={false} />
           </div>
-          <div className="rounded-2xl border border-teal-200 bg-teal-50 p-6 shadow-sm">
-            <p className="text-sm font-black uppercase tracking-wide text-teal-800">Better option</p>
-            <h2 className="mt-2 text-3xl font-black text-slate-950">{result.betterOption}</h2>
-            <p className="mt-4 leading-7 text-slate-700">{result.explanation}</p>
+          <div className="rounded-2xl border border-teal-200 bg-teal-50 p-6 shadow-sm dark:border-teal-800 dark:bg-teal-950/40">
+            <p className="text-sm font-black uppercase tracking-wide text-teal-800 dark:text-teal-200">Better option</p>
+            <h2 className="mt-2 text-3xl font-black text-slate-950 dark:text-slate-50">{result.betterOption}</h2>
+            <p className="mt-4 leading-7 text-slate-700 dark:text-slate-300">{result.explanation}</p>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="font-black text-slate-950">Risk comparison</h3>
-              <p className="mt-3 leading-7 text-slate-600">{result.riskComparison}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <h3 className="font-black text-slate-950 dark:text-slate-50">Risk comparison</h3>
+              <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">{result.riskComparison}</p>
             </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <h3 className="font-black text-slate-950">Final recommendation</h3>
-              <p className="mt-3 leading-7 text-slate-600">{result.finalRecommendation}</p>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <h3 className="font-black text-slate-950 dark:text-slate-50">Final recommendation</h3>
+              <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">{result.finalRecommendation}</p>
             </div>
           </div>
           <WhyRecommendation title={result.betterOption} reasons={result.whyRecommendation} />

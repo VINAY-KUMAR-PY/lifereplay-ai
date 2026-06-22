@@ -4,6 +4,7 @@ import { Button } from "../components/Button";
 import { ResultPanel } from "../components/ResultPanel";
 import { SectionHeader } from "../components/SectionHeader";
 import { AnalysisSkeleton } from "../components/Skeleton";
+import { API_URL } from "../services/api";
 import type { AnalysisResult } from "../types";
 
 const examples = [
@@ -31,10 +32,8 @@ export default function AnalyzePage() {
     }
 
     setLoading(true);
-    setStatusMessage("Connecting to AI engine...");
     try {
-      const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
-      const response = await fetch(`${apiUrl}/api/analyze/stream`, {
+      const response = await fetch(`${API_URL}/api/analyze/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ decision: decision.trim() })
@@ -68,6 +67,8 @@ export default function AnalyzePage() {
     }
   }
 
+  const activeStatus = loading ? statusMessage || "Initializing AI engine..." : "";
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <SectionHeader
@@ -78,9 +79,9 @@ export default function AnalyzePage() {
 
       <form
         onSubmit={handleSubmit}
-        className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+        className="mt-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900"
       >
-        <label htmlFor="decision" className="text-sm font-black text-slate-800">
+        <label htmlFor="decision" className="text-sm font-black text-slate-800 dark:text-slate-100">
           Decision to analyze
         </label>
         <textarea
@@ -88,7 +89,7 @@ export default function AnalyzePage() {
           value={decision}
           onChange={(event) => setDecision(event.target.value)}
           rows={4}
-          className="mt-3 w-full resize-none rounded-xl border border-slate-300 px-4 py-3 text-base leading-7 text-slate-950 shadow-sm outline-none transition focus:border-teal-500 focus:ring-4 focus:ring-teal-100"
+          className="mt-3 w-full resize-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-base leading-7 text-slate-950 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-teal-500 focus:ring-4 focus:ring-teal-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-teal-900/30"
           placeholder="Example: Should I choose Data Scientist or Software Engineer?"
         />
         <div className="mt-4 flex flex-wrap gap-2">
@@ -97,23 +98,28 @@ export default function AnalyzePage() {
               key={example}
               type="button"
               onClick={() => setDecision(example)}
-              className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:-translate-y-0.5 hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800"
+              className="rounded-xl border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600 transition hover:-translate-y-0.5 hover:border-teal-200 hover:bg-teal-50 hover:text-teal-800 dark:border-slate-600 dark:text-slate-300 dark:hover:border-teal-700 dark:hover:bg-teal-950/40 dark:hover:text-teal-200"
             >
               {example}
             </button>
           ))}
         </div>
-        {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{error}</p>}
+        {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">{error}</p>}
         <div className="mt-5">
           <Button type="submit" disabled={loading}>
             {loading ? <Loader2 className="animate-spin" size={18} /> : <WandSparkles size={18} />}
             {loading ? "Simulating futures" : "Generate future replay"}
           </Button>
         </div>
-        {loading && <div aria-live="polite" className="mt-4 flex items-center gap-3 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3"><Loader2 className="animate-spin text-teal-600" size={18} /><span className="text-sm font-semibold text-teal-800">{statusMessage || "Initializing AI engine..."}</span></div>}
+        {activeStatus && (
+          <div aria-live="polite" className="mt-4 flex items-center gap-3 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3 dark:border-teal-800 dark:bg-teal-950/40">
+            <Loader2 className="animate-spin text-teal-600 dark:text-teal-400" size={18} />
+            <span className="text-sm font-semibold text-teal-800 dark:text-teal-200">{activeStatus}</span>
+          </div>
+        )}
       </form>
 
-      {loading && <AnalysisSkeleton />}
+      {loading && !result && <AnalysisSkeleton />}
 
       {result && (
         <div className="mt-8">

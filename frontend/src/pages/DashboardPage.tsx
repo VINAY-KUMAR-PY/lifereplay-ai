@@ -35,11 +35,11 @@ export default function DashboardPage() {
         title="Your decision intelligence cockpit."
         description="Track analyzed decisions, average confidence, risk concentration, and recent futures."
       />
-      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800">Demo Data — isolated judge showcase; real backend history is unchanged.</div>}
+      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">Demo Data — isolated judge showcase; real backend history is unchanged.</div>}
 
       {loading && <DashboardSkeleton />}
 
-      {error && <p role="alert" className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
+      {error && <p role="alert" className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">{error}</p>}
 
       {dashboard && (
         <section className="mt-8 space-y-6">
@@ -54,13 +54,13 @@ export default function DashboardPage() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,0.06)]"
+                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-[0_18px_60px_rgba(15,23,42,0.06)] dark:border-slate-700 dark:bg-slate-900"
               >
                 <span className="grid h-11 w-11 place-items-center rounded-xl bg-slate-950 text-teal-200">
                   <item.icon className="h-5 w-5" />
                 </span>
-                <p className="mt-5 text-sm font-bold text-slate-500">{item.label}</p>
-                <p className="mt-2 text-3xl font-black text-slate-950">{item.value}</p>
+                <p className="mt-5 text-sm font-bold text-slate-500 dark:text-slate-400">{item.label}</p>
+                <p className="mt-2 text-3xl font-black text-slate-950 dark:text-slate-50">{item.value}</p>
               </div>
             ))}
           </div>

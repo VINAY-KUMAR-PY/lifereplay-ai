@@ -52,16 +52,16 @@ export default function HistoryPage() {
         title="Review previous decisions."
         description="Review saved career decisions, reopen reports, and compare how confidence, opportunity, and risk evolved over time."
       />
-      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800">Demo Data — these examples are not mixed with saved decisions.</div>}
+      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">Demo Data — these examples are not mixed with saved decisions.</div>}
 
       {loading && (
-        <div className="mt-10 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">
+        <div className="mt-10 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
           <Loader2 className="animate-spin" size={20} />
           Loading history
         </div>
       )}
 
-      {error && <p role="alert" className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
+      {error && <p role="alert" className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">{error}</p>}
 
       {!!careerReplays.length && (
         <section className="mt-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
@@ -86,12 +86,38 @@ export default function HistoryPage() {
         </section>
       )}
 
-      {!!items.length && <div className="mt-6 flex flex-wrap gap-3"><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search decisions..." className="min-w-48 flex-1 rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-950 shadow-sm outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-100" /><div className="flex flex-wrap gap-2">{riskCategories.map((category) => <button key={category} type="button" onClick={() => setFilterRisk(category)} className={`rounded-lg px-3 py-2 text-xs font-black transition ${filterRisk === category ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>{category}</button>)}</div></div>}
+      {!!items.length && (
+        <div className="mt-6 flex flex-wrap gap-3">
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search decisions..."
+            className="min-w-48 flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm text-slate-950 shadow-sm outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-100 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-teal-900/30"
+          />
+          <div className="flex flex-wrap gap-2">
+            {riskCategories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                onClick={() => setFilterRisk(category)}
+                className={`rounded-lg px-3 py-2 text-xs font-black transition ${
+                  filterRisk === category
+                    ? "bg-slate-950 text-white dark:bg-teal-600"
+                    : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!loading && !items.length && !careerReplays.length && (
-        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
-          <p className="text-lg font-black text-slate-950">No decisions analyzed yet.</p>
-          <p className="mt-2 text-slate-600">Run the analyzer once and the result will appear here.</p>
+        <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900">
+          <p className="text-lg font-black text-slate-950 dark:text-slate-50">No decisions analyzed yet.</p>
+          <p className="mt-2 text-slate-600 dark:text-slate-400">Run the analyzer once and the result will appear here.</p>
         </div>
       )}
 
@@ -105,41 +131,41 @@ export default function HistoryPage() {
                 onClick={() => setSelected(item)}
                 className={`w-full rounded-md border p-4 text-left shadow-sm transition ${
                   selected?.id === item.id
-                    ? "border-teal-400 bg-teal-50 shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
-                    : "border-slate-200 bg-white hover:-translate-y-1 hover:bg-slate-50 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
+                    ? "border-teal-400 bg-teal-50 shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:border-teal-700 dark:bg-teal-950/40"
+                    : "border-slate-200 bg-white hover:-translate-y-1 hover:bg-slate-50 hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800"
                 }`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="font-black text-slate-950">{item.decision}</p>
-                    <p className="mt-1 text-xs font-semibold text-slate-500">{formatDate(item.createdAt)}</p>
+                    <p className="font-black text-slate-950 dark:text-slate-50">{item.decision}</p>
+                    <p className="mt-1 text-xs font-semibold text-slate-500 dark:text-slate-400">{formatDate(item.createdAt)}</p>
                   </div>
-                  <Eye className="h-5 w-5 flex-none text-slate-500" />
+                  <Eye className="h-5 w-5 flex-none text-slate-500 dark:text-slate-400" />
                 </div>
                 <div className="mt-3 flex items-center gap-3">
                   <span className="rounded-md bg-slate-950 px-2 py-1 text-xs font-black text-white">{item.confidenceScore}%</span>
-                  <span className="text-sm font-semibold text-slate-500">{item.dominantRiskCategory} risk</span>
+                  <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{item.dominantRiskCategory} risk</span>
                 </div>
-                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{item.summary}</p>
+                <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{item.summary}</p>
               </button>
             ))}
-            {!filteredItems.length && <div className="rounded-md border border-slate-200 bg-white p-6 text-center text-sm font-semibold text-slate-600">No decisions match this search and risk filter.</div>}
+            {!filteredItems.length && <div className="rounded-md border border-slate-200 bg-white p-6 text-center text-sm font-semibold text-slate-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400">No decisions match this search and risk filter.</div>}
             {totalPages > 1 && (
               <div className="mt-6 flex items-center justify-center gap-2">
                 <button
                   type="button"
                   onClick={() => setPage((current) => Math.max(1, current - 1))}
                   disabled={page === 1}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   Previous
                 </button>
-                <span className="text-sm font-bold text-slate-600">Page {page} of {totalPages}</span>
+                <span className="text-sm font-bold text-slate-600 dark:text-slate-400">Page {page} of {totalPages}</span>
                 <button
                   type="button"
                   onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
                   disabled={page === totalPages}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   Next
                 </button>

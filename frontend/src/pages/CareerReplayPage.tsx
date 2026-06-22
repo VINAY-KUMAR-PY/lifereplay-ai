@@ -23,12 +23,12 @@ const defaultSelected: CareerPath[] = ["AI Engineer", "Data Scientist", "Softwar
 
 function PlanBlock({ title, items }: { title: string; items: string[] }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{title}</p>
-      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">{title}</p>
+      <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700 dark:text-slate-300">
         {items.map((item) => (
           <li key={item} className="flex gap-2">
-            <CheckCircle2 className="mt-1 h-4 w-4 flex-none text-teal-600" />
+            <CheckCircle2 className="mt-1 h-4 w-4 flex-none text-teal-600 dark:text-teal-400" />
             <span>{item}</span>
           </li>
         ))}
@@ -49,7 +49,15 @@ export default function CareerReplayPage() {
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [extracting, setExtracting] = useState(false);
   const { demoMode } = useDemoData();
-  useEffect(() => { if (demoMode) { setSelected(["Software Engineer", "Higher Studies"]); setBackground("Demo Data: final-year CSE student with full-stack projects deciding between work and higher studies."); setResult(demoCareerReplay); } else if (result?.id === "demo-career") setResult(null); }, [demoMode]);
+  useEffect(() => {
+    if (demoMode) {
+      setSelected(["Software Engineer", "Higher Studies"]);
+      setBackground("Demo Data: final-year CSE student with full-stack projects deciding between work and higher studies.");
+      setResult(demoCareerReplay);
+    } else if (result?.id === "demo-career") {
+      setResult(null);
+    }
+  }, [demoMode, result]);
 
   function togglePath(path: CareerPath) {
     setSelected((current) =>
@@ -127,11 +135,11 @@ export default function CareerReplayPage() {
         title="Compare career paths with AI decision intelligence."
         description="Replay AI Engineer, Data Scientist, Software Engineer, Government Exams, Startup Founder, and Higher Studies with fit, growth, salary, risk, readiness, and 30/90/180-day action plans."
       />
-      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800">Demo Data — Software Engineer vs Higher Studies showcase.</div>}
+      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800 dark:border-teal-800 dark:bg-teal-950/40 dark:text-teal-200">Demo Data — Software Engineer vs Higher Studies showcase.</div>}
 
       <form
         onSubmit={handleSubmit}
-        className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+        className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_24px_80px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900"
       >
         <div className="border-b border-slate-100 bg-slate-950 p-6 text-white">
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -168,7 +176,7 @@ export default function CareerReplayPage() {
         </div>
 
         <div className="p-6">
-          <label htmlFor="career-background" className="text-sm font-black text-slate-800">
+          <label htmlFor="career-background" className="text-sm font-black text-slate-800 dark:text-slate-100">
             Student / fresher background
           </label>
           <textarea
@@ -177,18 +185,18 @@ export default function CareerReplayPage() {
             onChange={(event) => setBackground(event.target.value)}
             rows={4}
             maxLength={1000}
-            className="mt-3 w-full resize-none rounded-xl border border-slate-300 px-4 py-3 text-base leading-7 text-slate-950 shadow-sm"
+            className="mt-3 w-full resize-none rounded-xl border border-slate-300 bg-white px-4 py-3 text-base leading-7 text-slate-950 shadow-sm dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
           />
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700">
               <input type="file" accept=".txt,.pdf" onChange={handleResumeUpload} className="sr-only" />
               {extracting ? <Loader2 className="animate-spin" size={14} /> : <FileText size={14} />}
               {resumeFile ? resumeFile.name : "Upload resume (.txt or .pdf)"}
             </label>
-            {resumeFile && <button type="button" onClick={() => { setResumeFile(null); setBackground(""); }} className="text-xs font-semibold text-rose-600 hover:text-rose-800">Remove</button>}
-            <span className="text-xs font-semibold text-slate-400">{background.length}/1000</span>
+            {resumeFile && <button type="button" onClick={() => { setResumeFile(null); setBackground(""); }} className="text-xs font-semibold text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300">Remove</button>}
+            <span className="text-xs font-semibold text-slate-400 dark:text-slate-500">{background.length}/1000</span>
           </div>
-          {error && <p role="alert" className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{error}</p>}
+          {error && <p role="alert" className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 dark:bg-rose-950/40 dark:text-rose-300">{error}</p>}
           <div className="mt-5">
             <Button type="submit" disabled={loading}>
               {loading ? <Loader2 className="animate-spin" size={18} /> : <Route size={18} />}
@@ -202,15 +210,15 @@ export default function CareerReplayPage() {
 
       {result && (
         <section className="mt-8 space-y-6">
-          <div className="rounded-2xl border border-teal-200 bg-teal-50 p-6">
-            <p className="text-sm font-black uppercase tracking-[0.18em] text-teal-800">Final recommendation</p>
-            <p className="mt-3 text-lg font-semibold leading-8 text-slate-800">{result.finalRecommendation}</p>
+          <div className="rounded-2xl border border-teal-200 bg-teal-50 p-6 dark:border-teal-800 dark:bg-teal-950/40">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-teal-800 dark:text-teal-200">Final recommendation</p>
+            <p className="mt-3 text-lg font-semibold leading-8 text-slate-800 dark:text-slate-100">{result.finalRecommendation}</p>
           </div>
           <WhyRecommendation title={result.paths.slice().sort((a, b) => b.scorecard.overallScore - a.scorecard.overallScore)[0]?.path ?? "Recommended path"} reasons={result.whyRecommendation} />
 
           <div className="grid gap-6">
             {result.paths.map((path) => (
-              <article key={path.path} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <article key={path.path} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-3">
@@ -218,8 +226,8 @@ export default function CareerReplayPage() {
                         <BriefcaseBusiness size={20} />
                       </span>
                       <div>
-                        <h2 className="text-2xl font-black text-slate-950">{path.path}</h2>
-                        <p className="text-sm font-semibold text-slate-500">{path.timeRequired}</p>
+                        <h2 className="text-2xl font-black text-slate-950 dark:text-slate-50">{path.path}</h2>
+                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">{path.timeRequired}</p>
                       </div>
                     </div>
                   </div>
@@ -248,20 +256,20 @@ export default function CareerReplayPage() {
                     ["Salary potential", path.salaryPotential],
                     ["Learning curve", path.learningCurve]
                   ].map(([label, value]) => (
-                    <div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{label}</p>
-                      <p className="mt-2 text-sm font-bold leading-6 text-slate-800">{value}</p>
+                    <div key={label} className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950">
+                      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">{label}</p>
+                      <p className="mt-2 text-sm font-bold leading-6 text-slate-800 dark:text-slate-200">{value}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-6 grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-                  <div className="rounded-lg border border-slate-200 bg-white p-5">
+                  <div className="rounded-lg border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-950">
                     <div className="mb-3 flex items-center gap-2">
-                      <ShieldAlert size={18} className="text-teal-700" />
-                      <h3 className="text-sm font-black uppercase tracking-wide text-slate-700">Skill roadmap</h3>
+                      <ShieldAlert size={18} className="text-teal-700 dark:text-teal-400" />
+                      <h3 className="text-sm font-black uppercase tracking-wide text-slate-700 dark:text-slate-200">Skill roadmap</h3>
                     </div>
-                    <ul className="space-y-3 text-sm leading-6 text-slate-600">
+                    <ul className="space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
                       {path.skillRoadmap.map((skill) => (
                         <li key={skill} className="flex gap-2">
                           <CheckCircle2 className="mt-1 h-4 w-4 flex-none text-teal-600" />
@@ -269,13 +277,13 @@ export default function CareerReplayPage() {
                         </li>
                       ))}
                     </ul>
-                    <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-700">
+                    <p className="mt-4 rounded-lg bg-slate-50 p-3 text-sm leading-6 text-slate-700 dark:bg-slate-900 dark:text-slate-300">
                       {path.recommendation}
                     </p>
                   </div>
 
                   <div className="grid gap-3">
-                    <div className="flex items-center gap-2 text-slate-700">
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
                       <Clock3 size={18} className="text-teal-700" />
                       <h3 className="text-sm font-black uppercase tracking-wide">30 / 90 / 180 day plan</h3>
                     </div>

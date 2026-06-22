@@ -39,8 +39,17 @@ async function atomicWrite(file: string, data: string): Promise<void> {
   }
 }
 
+async function ensureCollectionFile(file: string): Promise<void> {
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  try {
+    await fs.access(file);
+  } catch {
+    await fs.writeFile(file, "[]", "utf-8");
+  }
+}
+
 async function saveCollectionItem<T>(file: string, item: T, limit: number): Promise<T> {
-  await readCollection<T>(file);
+  await ensureCollectionFile(file);
   const release = await lockfile.lock(file, {
     realpath: false,
     retries: { retries: 20, factor: 1.4, minTimeout: 10, maxTimeout: 150 }

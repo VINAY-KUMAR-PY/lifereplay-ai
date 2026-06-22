@@ -167,7 +167,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-white py-16 text-slate-950">
+      <section className="bg-white py-16 text-slate-950 dark:bg-slate-900 dark:text-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
             <div>
@@ -180,9 +180,9 @@ export default function LandingPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {useCases.map((useCase) => (
-                <div key={useCase} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                  <ShieldCheck className="h-5 w-5 text-teal-600" />
-                  <span className="font-bold text-slate-800">{useCase}</span>
+                <div key={useCase} className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-800">
+                  <ShieldCheck className="h-5 w-5 text-teal-600 dark:text-teal-400" />
+                  <span className="font-bold text-slate-800 dark:text-slate-100">{useCase}</span>
                 </div>
               ))}
             </div>
@@ -190,7 +190,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="bg-slate-50 py-16 text-slate-950">
+      <section className="bg-slate-50 py-16 text-slate-950 dark:bg-slate-950 dark:text-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 max-w-3xl">
             <p className="text-sm font-black uppercase tracking-[0.2em] text-teal-700">Why LifeReplay AI is Different</p>
@@ -198,19 +198,19 @@ export default function LandingPage() {
           </div>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
-              <div key={feature.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div key={feature.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
                 <span className="grid h-12 w-12 place-items-center rounded-xl bg-slate-950 text-teal-200">
                   <feature.icon className="h-6 w-6" />
                 </span>
                 <h3 className="mt-5 text-lg font-black">{feature.title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{feature.text}</p>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{feature.text}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-16 text-slate-950">
+      <section className="bg-white py-16 text-slate-950 dark:bg-slate-900 dark:text-slate-50">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 max-w-3xl">
             <p className="text-sm font-black uppercase tracking-[0.2em] text-teal-700">How It Works</p>
@@ -218,29 +218,29 @@ export default function LandingPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
             {workflow.map(([title, text], index) => (
-              <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+              <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)] dark:border-slate-700 dark:bg-slate-900 dark:hover:bg-slate-800">
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950 text-sm font-black text-teal-200">
                   {index + 1}
                 </span>
                 <h3 className="mt-5 font-black">{title}</h3>
-                <p className="mt-3 text-sm leading-6 text-slate-600">{text}</p>
+                <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">{text}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="bg-white py-16 text-slate-950">
+      <section className="bg-white py-16 text-slate-950 dark:bg-slate-900 dark:text-slate-50">
         <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-3 lg:px-8">
           {[
             [Clock3, "Timeline intelligence", "Understand what a decision could mean at 6 months, 1 year, 3 years, and 5 years."],
             [BarChart3, "Analytics dashboard", "Track decisions, confidence, opportunity, risk distribution, and recent analyses."],
             [BrainCircuit, "Gemini with fallback", "Use Gemini when configured, while mock intelligence keeps demos reliable offline."]
           ].map(([Icon, title, text]) => (
-            <div key={title as string} className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-              <Icon className="h-7 w-7 text-teal-700" />
+            <div key={title as string} className="rounded-2xl border border-slate-200 bg-slate-50 p-6 dark:border-slate-700 dark:bg-slate-900">
+              <Icon className="h-7 w-7 text-teal-700 dark:text-teal-400" />
               <h3 className="mt-5 text-xl font-black">{title as string}</h3>
-              <p className="mt-3 leading-7 text-slate-600">{text as string}</p>
+              <p className="mt-3 leading-7 text-slate-600 dark:text-slate-300">{text as string}</p>
             </div>
           ))}
         </div>
