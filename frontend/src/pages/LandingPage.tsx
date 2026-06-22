@@ -8,11 +8,24 @@ import {
   GraduationCap,
   Layers3,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  ScanSearch,
+  Telescope
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const features = [
+  {
+    icon: Telescope,
+    title: "Future Outcome Simulator",
+    text: "Compare salaries, success probability, hiring difficulty, opportunity cost, SWOT, and risk across multiple futures."
+  },
+  {
+    icon: ScanSearch,
+    title: "Recruiter View",
+    text: "See shortlist readiness, missing evidence, interview weaknesses, and hiring probability through a recruiter's lens."
+  },
   {
     icon: BrainCircuit,
     title: "Decision Analyzer",
@@ -57,7 +70,20 @@ const workflow = [
   ["Execute Action Plan", "Follow immediate, 30-day, 90-day, and long-term next steps."]
 ];
 
+const demoItems = [
+  { label: "CareerReplay preview", title: "AI Engineer vs Government Exams", insights: [["Career fit", "AI Engineer scores 88/100 with portfolio-driven hiring."], ["Risk lens", "Government Exams require a 2-4 year runway with high competition."], ["Recommendation", "Run a 90-day AI portfolio sprint before fully committing."]] },
+  { label: "Decision Analyzer", title: "Should I accept a startup offer?", insights: [["Best case", "Fast growth, ESOP upside, and leadership exposure within 12 months."], ["Risk", "Verify startup runway before accepting the financial uncertainty."], ["Next step", "Request six-month finances and validate the founding team."]] },
+  { label: "Option Compare", title: "Data Science vs Software Engineering", insights: [["Data Science", "Strong salary ceiling when statistics meets domain expertise."], ["Software Engineering", "Broader fresher demand and faster portfolio validation."], ["Winner", "Software Engineering offers better near-term job readiness."]] }
+];
+
 export default function LandingPage() {
+  const [demoIndex, setDemoIndex] = useState(0);
+  useEffect(() => {
+    const interval = window.setInterval(() => setDemoIndex((index) => (index + 1) % demoItems.length), 4000);
+    return () => window.clearInterval(interval);
+  }, []);
+  const activeDemo = demoItems[demoIndex];
+
   return (
     <div className="bg-slate-950 text-white">
       <section className="relative overflow-hidden border-b border-white/10">
@@ -98,23 +124,20 @@ export default function LandingPage() {
             <div className="rounded-2xl bg-slate-900 p-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-sm font-bold text-teal-200">CareerReplay preview</p>
-                  <h2 className="mt-2 text-2xl font-black">AI Engineer vs Government Exams</h2>
+                  <p className="text-sm font-bold text-teal-200">{activeDemo.label}</p>
+                  <h2 className="mt-2 text-2xl font-black">{activeDemo.title}</h2>
                 </div>
                 <Layers3 className="h-10 w-10 text-teal-300" />
               </div>
               <div className="mt-6 grid gap-3">
-                {[
-                  ["Career fit", "AI Engineer scores higher for product-building, portfolio proof, and market growth."],
-                  ["Risk lens", "Government Exams need longer preparation runway and a backup employability plan."],
-                  ["Recommendation", "Validate AI Engineer with a 90-day portfolio sprint before full commitment."]
-                ].map(([label, text]) => (
+                {activeDemo.insights.map(([label, text]) => (
                   <div key={label} className="rounded-xl border border-white/10 bg-white/10 p-4">
                     <p className="text-xs font-black uppercase tracking-wide text-teal-200">{label}</p>
                     <p className="mt-2 text-sm leading-6 text-slate-100">{text}</p>
                   </div>
                 ))}
               </div>
+              <div className="mt-4 flex justify-center gap-2">{demoItems.map((item, index) => <button key={item.label} type="button" aria-label={`Show ${item.label}`} onClick={() => setDemoIndex(index)} className={`h-2 rounded-full transition-all ${index === demoIndex ? "w-6 bg-teal-300" : "w-2 bg-white/30"}`} />)}</div>
             </div>
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               {metrics.map(([value, label]) => (
@@ -157,7 +180,7 @@ export default function LandingPage() {
             <p className="text-sm font-black uppercase tracking-[0.2em] text-teal-700">Platform</p>
             <h2 className="mt-3 text-3xl font-black">Premium decision intelligence, not a generic chatbot.</h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
               <div key={feature.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <span className="grid h-12 w-12 place-items-center rounded-xl bg-slate-950 text-teal-200">

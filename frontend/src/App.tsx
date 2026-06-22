@@ -6,6 +6,9 @@ import ComparePage from "./pages/ComparePage";
 import DashboardPage from "./pages/DashboardPage";
 import HistoryPage from "./pages/HistoryPage";
 import LandingPage from "./pages/LandingPage";
+import SharedDecisionPage from "./pages/SharedDecisionPage";
+import FutureSimulationPage from "./pages/FutureSimulationPage";
+import RecruiterViewPage from "./pages/RecruiterViewPage";
 
 export default function App() {
   return (
@@ -17,6 +20,9 @@ export default function App() {
         <Route path="/compare" element={<ComparePage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/history" element={<HistoryPage />} />
+        <Route path="/decision/:id" element={<SharedDecisionPage />} />
+        <Route path="/future-simulation" element={<FutureSimulationPage />} />
+        <Route path="/recruiter-view" element={<RecruiterViewPage />} />
       </Route>
     </Routes>
   );

@@ -6,6 +6,9 @@ build/
 .DS_Store
 *.log
 backend/data/history.json
+backend/data/comparisons.json
+backend/data/future-simulations.json
+backend/data/recruiter-views.json
 coverage/
 .vite/
 *.tsbuildinfo

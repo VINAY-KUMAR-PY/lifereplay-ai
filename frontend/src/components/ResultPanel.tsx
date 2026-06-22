@@ -1,4 +1,5 @@
-import { ArrowRight, CheckCircle2, Clock3, Download, ShieldAlert, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, Check, CheckCircle2, Clock3, Copy, Download, ShieldAlert, Sparkles, TrendingUp } from "lucide-react";
+import { useState } from "react";
 import type { AnalysisResult } from "../types";
 import { downloadDecisionReport } from "../utils/pdf";
 import { Button } from "./Button";
@@ -21,6 +22,14 @@ function ListBlock({ title, items }: { title: string; items: string[] }) {
 }
 
 export function ResultPanel({ result }: { result: AnalysisResult }) {
+  const [copied, setCopied] = useState(false);
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(`${window.location.origin}/decision/${result.id}`);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 2000);
+  }
+
   return (
     <section className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -28,10 +37,10 @@ export function ResultPanel({ result }: { result: AnalysisResult }) {
           <p className="text-sm font-black uppercase tracking-[0.18em] text-teal-700">Decision report</p>
           <h2 className="mt-1 text-xl font-black text-slate-950">Export this replay for review</h2>
         </div>
-        <Button type="button" onClick={() => downloadDecisionReport(result)}>
-          <Download size={18} />
-          Download Decision Report
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="secondary" onClick={copyLink}>{copied ? <Check size={18} /> : <Copy size={18} />}{copied ? "Copied" : "Copy link"}</Button>
+          <Button type="button" onClick={() => downloadDecisionReport(result)}><Download size={18} />Download Decision Report</Button>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">

@@ -24,6 +24,22 @@ Response:
 
 ## Analyze Decision
 
+### `POST /api/analyze/stream`
+
+Accepts the same body as `/api/analyze` and returns Server-Sent Events. `status` events report progress, `result` contains the saved `AnalysisResult`, `done` closes the stream, and `error` contains a safe message.
+
+```text
+event: status
+data: {"message":"Simulating best-case future..."}
+
+event: result
+data: {"id":"analysis_id", ...}
+```
+
+### `GET /api/analyze/:id`
+
+Returns one saved analysis for a shareable decision route. Responds with `404` and `{ "message": "Decision not found." }` when the ID does not exist.
+
 ### `POST /api/analyze`
 
 Analyzes a decision and stores it in history.
@@ -118,6 +134,26 @@ Validation:
 - Minimum length: 2 characters
 - Maximum length: 240 characters each
 
+## Future Outcome Simulation
+
+### `POST /api/future-simulation`
+
+```json
+{ "scenarios": ["AI Engineer", "Government Exams", "Higher Studies"], "profile": "Final-year CSE student with Python projects" }
+```
+
+Returns quantified scenario outcomes, scorecards, SWOT analyses, five-item risk matrices, the best scenario, and exactly five recommendation reasons.
+
+## Recruiter View
+
+### `POST /api/recruiter-view`
+
+```json
+{ "targetRole": "AI Engineer", "profile": "CSE graduate with Python, React, two projects, and no internships" }
+```
+
+Returns readiness score, missing skills/projects, resume gaps, interview weaknesses, 3/6/12-month hiring probabilities, recruiter verdict, and improvement plan.
+
 ## History
 
 ### `GET /api/history`
@@ -152,9 +188,11 @@ Response body:
 ```json
 {
   "totalDecisions": 3,
+  "totalComparisons": 2,
   "averageConfidenceScore": 81,
   "mostCommonRiskCategory": "Career",
   "recentAnalyses": [],
+  "recentComparisons": [],
   "riskDistribution": {
     "Career": 2,
     "Financial": 1
@@ -180,4 +218,3 @@ Unexpected errors:
   "message": "Something went wrong. Please try again."
 }
 ```
-

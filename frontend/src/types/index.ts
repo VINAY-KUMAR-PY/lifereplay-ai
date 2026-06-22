@@ -14,6 +14,14 @@ export interface ActionPlan {
   longTerm: string[];
 }
 
+export interface DecisionScorecard {
+  marketDemand: number; learningCurve: number; risk: number; salaryPotential: number; competition: number;
+  stability: number; growthPotential: number; jobReadiness: number; overallScore: number;
+}
+
+export interface SwotAnalysis { strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[]; }
+export interface RiskMatrixItem { type: "Career" | "Financial" | "Learning" | "Market" | "Personal"; probability: number; impact: number; mitigation: string; }
+
 export interface AnalysisResult {
   id: string;
   decision: string;
@@ -47,15 +55,10 @@ export interface ComparisonResult {
   riskComparison: string;
   betterOption: string;
   explanation: string;
+  whyRecommendation: string[];
 }
 
-export type CareerPath =
-  | "AI Engineer"
-  | "Data Scientist"
-  | "Software Engineer"
-  | "Government Exams"
-  | "Startup Founder"
-  | "Higher Studies";
+export type CareerPath = string;
 
 export interface CareerPathReplay {
   path: CareerPath;
@@ -71,6 +74,9 @@ export interface CareerPathReplay {
   plan90: string[];
   plan180: string[];
   recommendation: string;
+  scorecard: DecisionScorecard;
+  swot: SwotAnalysis;
+  riskMatrix: RiskMatrixItem[];
 }
 
 export interface CareerReplayResult {
@@ -78,14 +84,36 @@ export interface CareerReplayResult {
   createdAt: string;
   paths: CareerPathReplay[];
   finalRecommendation: string;
+  whyRecommendation: string[];
+}
+
+export interface FutureScenario {
+  name: string; salaryAfterOneYear: string; salaryAfterThreeYears: string; skillsRequired: string[];
+  successProbability: number; hiringDifficulty: RiskLevel; timeInvestment: string; financialImpact: string;
+  opportunityCost: string; careerImpact: string; riskLevel: RiskLevel; finalOutlook: string;
+  scorecard: DecisionScorecard; swot: SwotAnalysis; riskMatrix: RiskMatrixItem[];
+}
+export interface FutureSimulationResult { id: string; createdAt: string; scenarios: FutureScenario[]; bestScenario: string; reasoning: string[]; }
+export interface RecruiterViewResult {
+  id: string; createdAt: string; targetRole: string; readinessScore: number; missingSkills: string[];
+  missingProjects: string[]; resumeGaps: string[]; interviewWeaknesses: string[];
+  hiringProbability: { threeMonths: number; sixMonths: number; twelveMonths: number };
+  recruiterVerdict: string; improvementPlan: string[];
 }
 
 export interface DashboardMetrics {
   totalDecisions: number;
+  totalComparisons: number;
+  totalFutureSimulations: number;
+  totalRecruiterAssessments: number;
+  averageReadinessScore: number;
+  averageSuccessProbability: number;
+  mostRecommendedPath: string;
   averageConfidenceScore: number;
   averageOpportunityScore: number;
   mostCommonRiskCategory: string;
   recentAnalyses: AnalysisResult[];
+  recentComparisons: ComparisonResult[];
   riskDistribution: Record<string, number>;
   confidenceTrend: number[];
   opportunityTrend: number[];

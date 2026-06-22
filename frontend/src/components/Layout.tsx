@@ -1,4 +1,4 @@
-import { BrainCircuit, Gauge, GitCompare, GraduationCap, History, Home, Menu, X } from "lucide-react";
+import { BrainCircuit, Gauge, GitCompare, GraduationCap, History, Home, Menu, ScanSearch, Telescope, X } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 
@@ -7,6 +7,8 @@ const navItems = [
   { href: "/analyze", label: "Analyze", icon: BrainCircuit },
   { href: "/career-replay", label: "CareerReplay", icon: GraduationCap },
   { href: "/compare", label: "Compare", icon: GitCompare },
+  { href: "/future-simulation", label: "Future Simulation", icon: Telescope },
+  { href: "/recruiter-view", label: "Recruiter View", icon: ScanSearch },
   { href: "/dashboard", label: "Dashboard", icon: Gauge },
   { href: "/history", label: "History", icon: History }
 ];
@@ -24,11 +26,11 @@ export function Layout() {
             </span>
             <span>
               <span className="block text-base font-bold leading-tight">LifeReplay AI</span>
-              <span className="text-xs font-medium text-slate-500">Decision simulator</span>
+              <span className="text-xs font-medium text-slate-500">Career intelligence system</span>
             </span>
           </NavLink>
 
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden items-center gap-1 xl:flex">
             {navItems.map((item) => (
               <NavLink
                 key={item.href}
@@ -48,7 +50,7 @@ export function Layout() {
           <button
             type="button"
             aria-label="Toggle menu"
-            className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 xl:hidden"
             onClick={() => setOpen((value) => !value)}
           >
             {open ? <X size={20} /> : <Menu size={20} />}
@@ -56,7 +58,7 @@ export function Layout() {
         </div>
 
         {open && (
-          <nav className="border-t border-slate-200 bg-white px-4 py-3 md:hidden">
+          <nav className="border-t border-slate-200 bg-white px-4 py-3 xl:hidden">
             <div className="grid gap-2">
               {navItems.map((item) => (
                 <NavLink

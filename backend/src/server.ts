@@ -6,8 +6,8 @@ import cors from "cors";
 import express from "express";
 import { z } from "zod";
 
-const { analyzeDecision, compareOptions, replayCareers } = await import("./aiService.js");
-import { readHistory, saveAnalysis } from "./storage.js";
+const { analyzeDecision, compareOptions, generateRecruiterView, replayCareers, simulateFutures } = await import("./aiService.js");
+import { readComparisons, readFutureSimulations, readHistory, readRecruiterViews, saveAnalysis, saveComparison, saveFutureSimulation, saveRecruiterView } from "./storage.js";
 import type { DashboardMetrics } from "./types.js";
 
 const app = express();
@@ -15,11 +15,36 @@ const port = Number(process.env.PORT ?? 5000);
 
 app.use(
   cors({
-    origin: true,
+    origin: process.env.FRONTEND_URL ?? "http://localhost:5173",
     credentials: true
   })
 );
 app.use(express.json({ limit: "1mb" }));
+
+const requestWindows = new Map<string, { count: number; resetAt: number }>();
+const aiLimiter: express.RequestHandler = (req, res, next) => {
+  const now = Date.now();
+  const key = req.ip ?? "unknown";
+  const current = requestWindows.get(key);
+  const window = !current || current.resetAt <= now
+    ? { count: 0, resetAt: now + 15 * 60 * 1000 }
+    : current;
+  window.count += 1;
+  requestWindows.set(key, window);
+  res.setHeader("RateLimit-Limit", "30");
+  res.setHeader("RateLimit-Remaining", String(Math.max(0, 30 - window.count)));
+  res.setHeader("RateLimit-Reset", String(Math.ceil(window.resetAt / 1000)));
+  if (window.count > 30) {
+    return res.status(429).json({ message: "Too many requests. Please wait a few minutes and try again." });
+  }
+  return next();
+};
+
+app.use("/api/analyze", aiLimiter);
+app.use("/api/compare", aiLimiter);
+app.use("/api/career-replay", aiLimiter);
+app.use("/api/future-simulation", aiLimiter);
+app.use("/api/recruiter-view", aiLimiter);
 
 const decisionSchema = z.object({
   decision: z.string().trim().min(8, "Decision must be at least 8 characters.").max(500)
@@ -30,18 +55,19 @@ const compareSchema = z.object({
   optionB: z.string().trim().min(2, "Option B is required.").max(240)
 });
 
-const careerPathSchema = z.enum([
-  "AI Engineer",
-  "Data Scientist",
-  "Software Engineer",
-  "Government Exams",
-  "Startup Founder",
-  "Higher Studies"
-]);
-
 const careerReplaySchema = z.object({
-  paths: z.array(careerPathSchema).min(1, "Select at least one career path.").max(6),
-  background: z.string().trim().max(500).optional()
+  paths: z.array(z.string().trim().min(2).max(80)).min(1, "Select at least one career path.").max(6),
+  background: z.string().trim().max(1000).optional()
+});
+
+const futureSimulationRequestSchema = z.object({
+  scenarios: z.array(z.string().trim().min(2).max(80)).min(2, "Add at least two scenarios.").max(4),
+  profile: z.string().trim().max(1500).optional()
+});
+
+const recruiterViewRequestSchema = z.object({
+  targetRole: z.string().trim().min(2).max(100),
+  profile: z.string().trim().min(20, "Add enough profile detail for a recruiter assessment.").max(2000)
 });
 
 app.get("/health", (_req, res) => {
@@ -63,10 +89,52 @@ app.post("/api/analyze", async (req, res, next) => {
   }
 });
 
+app.post("/api/analyze/stream", async (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache, no-transform");
+  res.setHeader("Connection", "keep-alive");
+  res.flushHeaders();
+
+  const send = (event: string, data: unknown) => {
+    res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+  };
+
+  try {
+    const { decision } = decisionSchema.parse(req.body);
+    send("status", { message: "Simulating best-case future..." });
+    const analysis = await analyzeDecision(decision);
+    await saveAnalysis(analysis);
+    send("status", { message: "Calculating risk categories..." });
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    send("status", { message: "Building action plan..." });
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    send("result", analysis);
+    send("done", {});
+  } catch (error) {
+    const message = error instanceof z.ZodError
+      ? error.issues.map((issue) => issue.message).join(" ")
+      : "Unable to analyze this decision.";
+    send("error", { message });
+  } finally {
+    res.end();
+  }
+});
+
+app.get("/api/analyze/:id", async (req, res, next) => {
+  try {
+    const item = (await readHistory()).find((analysis) => analysis.id === req.params.id);
+    if (!item) return res.status(404).json({ message: "Decision not found." });
+    return res.json(item);
+  } catch (error) {
+    return next(error);
+  }
+});
+
 app.post("/api/compare", async (req, res, next) => {
   try {
     const { optionA, optionB } = compareSchema.parse(req.body);
     const comparison = await compareOptions(optionA, optionB);
+    await saveComparison(comparison);
     res.status(200).json(comparison);
   } catch (error) {
     next(error);
@@ -83,6 +151,24 @@ app.post("/api/career-replay", async (req, res, next) => {
   }
 });
 
+app.post("/api/future-simulation", async (req, res, next) => {
+  try {
+    const { scenarios, profile } = futureSimulationRequestSchema.parse(req.body);
+    const simulation = await simulateFutures(scenarios, profile);
+    await saveFutureSimulation(simulation);
+    res.status(200).json(simulation);
+  } catch (error) { next(error); }
+});
+
+app.post("/api/recruiter-view", async (req, res, next) => {
+  try {
+    const { targetRole, profile } = recruiterViewRequestSchema.parse(req.body);
+    const assessment = await generateRecruiterView(targetRole, profile);
+    await saveRecruiterView(assessment);
+    res.status(200).json(assessment);
+  } catch (error) { next(error); }
+});
+
 app.get("/api/history", async (_req, res, next) => {
   try {
     res.json(await readHistory());
@@ -94,6 +180,9 @@ app.get("/api/history", async (_req, res, next) => {
 app.get("/api/dashboard", async (_req, res, next) => {
   try {
     const history = await readHistory();
+    const comparisons = await readComparisons();
+    const futureSimulations = await readFutureSimulations();
+    const recruiterViews = await readRecruiterViews();
     const totalDecisions = history.length;
 
     const averageConfidenceScore = totalDecisions
@@ -113,10 +202,17 @@ app.get("/api/dashboard", async (_req, res, next) => {
 
     const dashboard: DashboardMetrics = {
       totalDecisions,
+      totalComparisons: comparisons.length,
+      totalFutureSimulations: futureSimulations.length,
+      totalRecruiterAssessments: recruiterViews.length,
+      averageReadinessScore: recruiterViews.length ? Math.round(recruiterViews.reduce((sum, item) => sum + item.readinessScore, 0) / recruiterViews.length) : 0,
+      averageSuccessProbability: futureSimulations.length ? Math.round(futureSimulations.reduce((sum, item) => sum + item.scenarios.reduce((scenarioSum, scenario) => scenarioSum + scenario.successProbability, 0) / item.scenarios.length, 0) / futureSimulations.length) : 0,
+      mostRecommendedPath: Object.entries(futureSimulations.reduce<Record<string, number>>((acc, item) => { acc[item.bestScenario] = (acc[item.bestScenario] ?? 0) + 1; return acc; }, {})).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "Not enough data",
       averageConfidenceScore,
       averageOpportunityScore,
       mostCommonRiskCategory: mostCommonRiskCategory as DashboardMetrics["mostCommonRiskCategory"],
       recentAnalyses: history.slice(0, 5),
+      recentComparisons: comparisons.slice(0, 3),
       riskDistribution,
       confidenceTrend: history.slice(0, 8).reverse().map((item) => item.confidenceScore),
       opportunityTrend: history.slice(0, 8).reverse().map((item) => item.opportunityScore)

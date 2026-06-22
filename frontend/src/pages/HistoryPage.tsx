@@ -11,6 +11,14 @@ export default function HistoryPage() {
   const [selected, setSelected] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [search, setSearch] = useState("");
+  const [filterRisk, setFilterRisk] = useState("All");
+  const riskCategories = ["All", "Career", "Financial", "Personal", "Learning", "Market"];
+  const filteredItems = items.filter((item) => {
+    const query = search.toLowerCase();
+    return (item.decision.toLowerCase().includes(query) || item.summary.toLowerCase().includes(query))
+      && (filterRisk === "All" || item.dominantRiskCategory === filterRisk);
+  });
 
   useEffect(() => {
     getHistory()
@@ -39,6 +47,8 @@ export default function HistoryPage() {
 
       {error && <p className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
 
+      {!!items.length && <div className="mt-6 flex flex-wrap gap-3"><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search decisions..." className="min-w-48 flex-1 rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-950 shadow-sm outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-100" /><div className="flex flex-wrap gap-2">{riskCategories.map((category) => <button key={category} type="button" onClick={() => setFilterRisk(category)} className={`rounded-lg px-3 py-2 text-xs font-black transition ${filterRisk === category ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>{category}</button>)}</div></div>}
+
       {!loading && !items.length && (
         <div className="mt-8 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.08)]">
           <p className="text-lg font-black text-slate-950">No decisions analyzed yet.</p>
@@ -49,7 +59,7 @@ export default function HistoryPage() {
       {!!items.length && (
         <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="space-y-3">
-            {items.map((item) => (
+            {filteredItems.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -74,6 +84,7 @@ export default function HistoryPage() {
                 <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">{item.summary}</p>
               </button>
             ))}
+            {!filteredItems.length && <div className="rounded-md border border-slate-200 bg-white p-6 text-center text-sm font-semibold text-slate-600">No decisions match this search and risk filter.</div>}
           </div>
           <div>{selected && <ResultPanel result={selected} />}</div>
         </div>

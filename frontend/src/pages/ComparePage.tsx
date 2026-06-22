@@ -2,6 +2,7 @@ import { CheckCircle2, GitCompare, Loader2, XCircle } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { Button } from "../components/Button";
 import { SectionHeader } from "../components/SectionHeader";
+import { WhyRecommendation } from "../components/IntelligencePanels";
 import { compareOptions } from "../services/api";
 import type { ComparisonResult } from "../types";
 
@@ -109,6 +110,7 @@ export default function ComparePage() {
               <p className="mt-3 leading-7 text-slate-600">{result.finalRecommendation}</p>
             </div>
           </div>
+          <WhyRecommendation title={result.betterOption} reasons={result.whyRecommendation} />
         </section>
       )}
     </div>

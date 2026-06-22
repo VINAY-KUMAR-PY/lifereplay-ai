@@ -1,12 +1,13 @@
-import { Activity, BarChart3, Gauge, Loader2, ShieldAlert, Sparkles } from "lucide-react";
+import { Activity, Award, BarChart3, Gauge, GitCompare, ScanSearch, ShieldAlert, Sparkles, Telescope } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { SectionHeader } from "../components/SectionHeader";
+import { DashboardSkeleton } from "../components/Skeleton";
 import { getDashboard } from "../services/api";
 import type { DashboardMetrics } from "../types";
 import { formatDate } from "../utils/format";
 
-function MiniTrend({ title, values, color }: { title: string; values: number[]; color: string }) {
+function TrendChart({ title, values, color }: { title: string; values: number[]; color: string }) {
   const data = values.length ? values : [0];
   const points = data
     .map((value, index) => {
@@ -24,13 +25,15 @@ function MiniTrend({ title, values, color }: { title: string; values: number[]; 
           {data[data.length - 1]}%
         </span>
       </div>
-      <svg viewBox="0 0 192 76" className="mt-5 h-28 w-full overflow-visible" role="img" aria-label={title}>
-        <path d="M0 72H192" stroke="#e2e8f0" strokeWidth="2" />
-        <polyline points={points} fill="none" stroke={color} strokeWidth="5" strokeLinecap="round" strokeLinejoin="round" />
+      <p className="mt-1 text-xs font-semibold text-slate-500">Last {values.length} decisions</p>
+      <svg viewBox="0 0 210 96" className="mt-3 h-44 w-full overflow-visible" role="img" aria-label={title}>
+        {[8, 40, 72].map((y) => <path key={y} d={`M16 ${y}H208`} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />)}
+        <text x="0" y="12" fontSize="7" fill="#64748b">100</text><text x="5" y="76" fontSize="7" fill="#64748b">0</text>
+        <polyline points={points} transform="translate(16 0)" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         {data.map((value, index) => {
           const x = data.length === 1 ? 96 : (index / (data.length - 1)) * 192;
           const y = 72 - (Math.max(0, Math.min(100, value)) / 100) * 64;
-          return <circle key={`${value}-${index}`} cx={x} cy={y} r="4" fill={color} />;
+          return <g key={`${value}-${index}`} className="group"><circle cx={x + 16} cy={y} r="5" fill={color}><title>{`Decision #${index + 1}: ${value}%`}</title></circle><text x={x + 16} y="91" textAnchor="middle" fontSize="6" fill="#64748b">#{index + 1}</text></g>;
         })}
       </svg>
     </div>
@@ -49,7 +52,6 @@ export default function DashboardPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const maxRiskValue = Math.max(...Object.values(dashboard?.riskDistribution ?? { none: 1 }));
   const confidence = dashboard?.averageConfidenceScore ?? 0;
   const opportunity = dashboard?.averageOpportunityScore ?? 0;
 
@@ -61,20 +63,16 @@ export default function DashboardPage() {
         description="Track analyzed decisions, average confidence, risk concentration, and recent futures."
       />
 
-      {loading && (
-        <div className="mt-10 flex items-center gap-3 rounded-md border border-slate-200 bg-white p-5 text-slate-600">
-          <Loader2 className="animate-spin" size={20} />
-          Loading dashboard
-        </div>
-      )}
+      {loading && <DashboardSkeleton />}
 
       {error && <p className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
 
       {dashboard && (
         <section className="mt-8 space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
             {[
               { icon: Activity, label: "Total decisions", value: dashboard.totalDecisions },
+              { icon: GitCompare, label: "Total comparisons", value: dashboard.totalComparisons },
               { icon: Gauge, label: "Average confidence", value: `${dashboard.averageConfidenceScore}%` },
               { icon: Sparkles, label: "Average opportunity", value: `${dashboard.averageOpportunityScore}%` },
               { icon: ShieldAlert, label: "Most common risk", value: dashboard.mostCommonRiskCategory }
@@ -92,9 +90,19 @@ export default function DashboardPage() {
             ))}
           </div>
 
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            {[
+              { icon: Telescope, label: "Future simulations", value: dashboard.totalFutureSimulations },
+              { icon: ScanSearch, label: "Recruiter assessments", value: dashboard.totalRecruiterAssessments },
+              { icon: Gauge, label: "Average readiness", value: `${dashboard.averageReadinessScore}%` },
+              { icon: Sparkles, label: "Average success", value: `${dashboard.averageSuccessProbability}%` },
+              { icon: Award, label: "Most recommended", value: dashboard.mostRecommendedPath }
+            ].map((item) => <div key={item.label} className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white"><span className="grid h-10 w-10 place-items-center rounded-md bg-white/10 text-teal-300"><item.icon size={19} /></span><p className="mt-4 text-xs font-bold uppercase tracking-wide text-slate-400">{item.label}</p><p className="mt-2 text-xl font-black">{item.value}</p></div>)}
+          </div>
+
           <div className="grid gap-6 lg:grid-cols-2">
-            <MiniTrend title="Confidence Trend" values={dashboard.confidenceTrend} color="#14b8a6" />
-            <MiniTrend title="Opportunity Trend" values={dashboard.opportunityTrend} color="#6366f1" />
+            <TrendChart title="Confidence Trend" values={dashboard.confidenceTrend} color="#14b8a6" />
+            <TrendChart title="Opportunity Trend" values={dashboard.opportunityTrend} color="#6366f1" />
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -125,21 +133,12 @@ export default function DashboardPage() {
                 <h2 className="text-lg font-black text-slate-950">Risk distribution</h2>
               </div>
               {Object.keys(dashboard.riskDistribution).length ? (
-                <div className="space-y-4">
-                  {Object.entries(dashboard.riskDistribution).map(([risk, value]) => (
-                    <div key={risk}>
-                      <div className="mb-2 flex justify-between text-sm font-bold text-slate-700">
-                        <span>{risk}</span>
-                        <span>{value}</span>
-                      </div>
-                      <div className="h-3 rounded-full bg-slate-100">
-                        <div
-                          className="h-3 rounded-full bg-gradient-to-r from-teal-500 to-indigo-500"
-                          style={{ width: `${Math.max(10, (value / maxRiskValue) * 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <div className="flex h-44 items-end gap-3 border-b border-slate-200 px-2 pb-7">
+                  {Object.entries(dashboard.riskDistribution).map(([risk, value], index) => {
+                    const maximum = Math.max(...Object.values(dashboard.riskDistribution), 1);
+                    const colors = ["#14b8a6", "#6366f1", "#f59e0b", "#ef4444", "#10b981"];
+                    return <div key={risk} className="relative flex h-full flex-1 items-end justify-center"><div title={`${risk}: ${value}`} className="w-full max-w-12 rounded-t transition hover:opacity-80" style={{ height: `${Math.max(10, (value / maximum) * 100)}%`, backgroundColor: colors[index % colors.length] }} /><span className="absolute -bottom-6 text-[10px] font-bold text-slate-600">{risk}</span><span className="absolute text-xs font-black text-slate-700" style={{ bottom: `${Math.max(10, (value / maximum) * 100)}%` }}>{value}</span></div>;
+                  })}
                 </div>
               ) : (
                 <p className="text-sm leading-6 text-slate-600">Analyze decisions to build risk insights.</p>
@@ -171,6 +170,11 @@ export default function DashboardPage() {
                 )}
               </div>
             </div>
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <h2 className="text-lg font-black text-slate-950">Recent comparisons</h2>
+            {dashboard.recentComparisons.length ? <div className="mt-4 grid gap-3 md:grid-cols-3">{dashboard.recentComparisons.map((comparison) => <div key={comparison.id} className="rounded-md border border-slate-100 bg-slate-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-teal-700">{comparison.betterOption}</p><p className="mt-2 font-black text-slate-950">{comparison.optionA} vs {comparison.optionB}</p><p className="mt-2 text-sm leading-6 text-slate-600">{comparison.explanation}</p></div>)}</div> : <p className="mt-3 text-sm text-slate-600">Comparisons will appear here after you compare two options.</p>}
           </div>
         </section>
       )}

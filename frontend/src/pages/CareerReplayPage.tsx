@@ -1,6 +1,7 @@
-import { BriefcaseBusiness, CheckCircle2, Clock3, GraduationCap, Loader2, Route, ShieldAlert } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { BriefcaseBusiness, CheckCircle2, Clock3, FileText, GraduationCap, Loader2, Plus, Route, ShieldAlert, X } from "lucide-react";
+import { ChangeEvent, FormEvent, useState } from "react";
 import { Button } from "../components/Button";
+import { RiskMatrixPanel, ScorecardPanel, SwotPanel, WhyRecommendation } from "../components/IntelligencePanels";
 import { ScoreRing } from "../components/ScoreRing";
 import { SectionHeader } from "../components/SectionHeader";
 import { replayCareers } from "../services/api";
@@ -41,11 +42,59 @@ export default function CareerReplayPage() {
   const [result, setResult] = useState<CareerReplayResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [customPath, setCustomPath] = useState("");
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [extracting, setExtracting] = useState(false);
 
   function togglePath(path: CareerPath) {
     setSelected((current) =>
-      current.includes(path) ? current.filter((item) => item !== path) : [...current, path]
+      current.includes(path) ? current.filter((item) => item !== path) : current.length < 6 ? [...current, path] : current
     );
+  }
+
+  function addCustomPath() {
+    const trimmed = customPath.trim();
+    if (!trimmed || selected.includes(trimmed) || selected.length >= 6) return;
+    setSelected((current) => [...current, trimmed]);
+    setCustomPath("");
+  }
+
+  async function handleResumeUpload(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setResumeFile(file);
+    setExtracting(true);
+    setError("");
+    try {
+      if (file.type === "text/plain") {
+        setBackground((await file.text()).slice(0, 1000));
+      } else if (file.type === "application/pdf") {
+        type TextItem = { str?: string };
+        type PdfModule = {
+          version: string;
+          GlobalWorkerOptions: { workerSrc: string };
+          getDocument: (source: { data: ArrayBuffer }) => { promise: Promise<{ numPages: number; getPage: (page: number) => Promise<{ getTextContent: () => Promise<{ items: TextItem[] }> }> }> };
+        };
+        const moduleUrl = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
+        const pdfjs = await import(/* @vite-ignore */ moduleUrl) as PdfModule;
+        pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+        const pdf = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+        let extracted = "";
+        for (let pageNumber = 1; pageNumber <= Math.min(pdf.numPages, 3); pageNumber += 1) {
+          const page = await pdf.getPage(pageNumber);
+          const content = await page.getTextContent();
+          extracted += `${content.items.map((item) => item.str ?? "").join(" ")} `;
+        }
+        setBackground(extracted.trim().slice(0, 1000));
+      } else {
+        throw new Error("Upload a .txt or .pdf resume.");
+      }
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Resume text could not be extracted. Paste it manually instead.");
+    } finally {
+      setExtracting(false);
+      event.target.value = "";
+    }
   }
 
   async function handleSubmit(event: FormEvent) {
@@ -105,6 +154,11 @@ export default function CareerReplayPage() {
               );
             })}
           </div>
+          <div className="mt-4 flex gap-2">
+            <input value={customPath} onChange={(event) => setCustomPath(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") { event.preventDefault(); addCustomPath(); } }} placeholder="Add custom path (e.g. Civil Services, UX Designer)" className="min-w-0 flex-1 rounded-lg border border-white/30 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none focus:ring-2 focus:ring-teal-300" maxLength={80} />
+            <button type="button" onClick={addCustomPath} disabled={!customPath.trim() || selected.length >= 6} title="Add career path" className="grid h-10 w-10 place-items-center rounded-lg bg-teal-300 text-slate-950 transition hover:bg-teal-200 disabled:cursor-not-allowed disabled:opacity-50"><Plus size={18} /></button>
+          </div>
+          {selected.some((path) => !careerPaths.includes(path)) && <div className="mt-3 flex flex-wrap gap-2">{selected.filter((path) => !careerPaths.includes(path)).map((path) => <button key={path} type="button" onClick={() => togglePath(path)} className="inline-flex items-center gap-2 rounded-lg border border-teal-300/50 bg-teal-300/10 px-3 py-2 text-sm font-bold text-teal-100">{path}<X size={14} /></button>)}</div>}
         </div>
 
         <div className="p-6">
@@ -116,8 +170,18 @@ export default function CareerReplayPage() {
             value={background}
             onChange={(event) => setBackground(event.target.value)}
             rows={4}
+            maxLength={1000}
             className="mt-3 w-full resize-none rounded-xl border border-slate-300 px-4 py-3 text-base leading-7 text-slate-950 shadow-sm"
           />
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+              <input type="file" accept=".txt,.pdf" onChange={handleResumeUpload} className="sr-only" />
+              {extracting ? <Loader2 className="animate-spin" size={14} /> : <FileText size={14} />}
+              {resumeFile ? resumeFile.name : "Upload resume (.txt or .pdf)"}
+            </label>
+            {resumeFile && <button type="button" onClick={() => { setResumeFile(null); setBackground(""); }} className="text-xs font-semibold text-rose-600 hover:text-rose-800">Remove</button>}
+            <span className="text-xs font-semibold text-slate-400">{background.length}/1000</span>
+          </div>
           {error && <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{error}</p>}
           <div className="mt-5">
             <Button type="submit" disabled={loading}>
@@ -134,6 +198,7 @@ export default function CareerReplayPage() {
             <p className="text-sm font-black uppercase tracking-[0.18em] text-teal-800">Final recommendation</p>
             <p className="mt-3 text-lg font-semibold leading-8 text-slate-800">{result.finalRecommendation}</p>
           </div>
+          <WhyRecommendation title={result.paths.slice().sort((a, b) => b.scorecard.overallScore - a.scorecard.overallScore)[0]?.path ?? "Recommended path"} reasons={result.whyRecommendation} />
 
           <div className="grid gap-6">
             {result.paths.map((path) => (
@@ -213,6 +278,7 @@ export default function CareerReplayPage() {
                     </div>
                   </div>
                 </div>
+                <div className="mt-6 space-y-4"><ScorecardPanel scorecard={path.scorecard} /><SwotPanel swot={path.swot} /><RiskMatrixPanel risks={path.riskMatrix} /></div>
               </article>
             ))}
           </div>

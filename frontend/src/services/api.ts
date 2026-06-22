@@ -1,4 +1,4 @@
-import type { AnalysisResult, CareerPath, CareerReplayResult, ComparisonResult, DashboardMetrics } from "../types";
+import type { AnalysisResult, CareerPath, CareerReplayResult, ComparisonResult, DashboardMetrics, FutureSimulationResult, RecruiterViewResult } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
@@ -46,4 +46,16 @@ export function getHistory() {
 
 export function getDashboard() {
   return request<DashboardMetrics>("/api/dashboard");
+}
+
+export function getAnalysisById(id: string) {
+  return request<AnalysisResult>(`/api/analyze/${encodeURIComponent(id)}`);
+}
+
+export function simulateFutures(scenarios: string[], profile: string) {
+  return request<FutureSimulationResult>("/api/future-simulation", { method: "POST", body: JSON.stringify({ scenarios, profile }) });
+}
+
+export function generateRecruiterView(targetRole: string, profile: string) {
+  return request<RecruiterViewResult>("/api/recruiter-view", { method: "POST", body: JSON.stringify({ targetRole, profile }) });
 }

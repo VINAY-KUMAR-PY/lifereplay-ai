@@ -3,7 +3,7 @@ import { FormEvent, useState } from "react";
 import { Button } from "../components/Button";
 import { ResultPanel } from "../components/ResultPanel";
 import { SectionHeader } from "../components/SectionHeader";
-import { analyzeDecision } from "../services/api";
+import { AnalysisSkeleton } from "../components/Skeleton";
 import type { AnalysisResult } from "../types";
 
 const examples = [
@@ -17,10 +17,13 @@ export default function AnalyzePage() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
+    setResult(null);
+    setStatusMessage("");
 
     if (decision.trim().length < 8) {
       setError("Enter a specific decision with at least 8 characters.");
@@ -28,12 +31,40 @@ export default function AnalyzePage() {
     }
 
     setLoading(true);
+    setStatusMessage("Connecting to AI engine...");
     try {
-      setResult(await analyzeDecision(decision.trim()));
+      const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
+      const response = await fetch(`${apiUrl}/api/analyze/stream`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ decision: decision.trim() })
+      });
+      if (!response.ok || !response.body) throw new Error("Unable to connect to the analysis stream.");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const messages = buffer.split("\n\n");
+        buffer = messages.pop() ?? "";
+        for (const message of messages) {
+          const event = message.split("\n").find((line) => line.startsWith("event: "))?.slice(7);
+          const dataLine = message.split("\n").find((line) => line.startsWith("data: "));
+          if (!dataLine) continue;
+          const payload = JSON.parse(dataLine.slice(6)) as { message?: string; id?: string };
+          if (event === "status" && payload.message) setStatusMessage(payload.message);
+          if (event === "result" && payload.id) setResult(payload as AnalysisResult);
+          if (event === "error") throw new Error(payload.message ?? "Unable to analyze this decision.");
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unable to analyze this decision.");
     } finally {
       setLoading(false);
+      setStatusMessage("");
     }
   }
 
@@ -79,7 +110,10 @@ export default function AnalyzePage() {
             {loading ? "Simulating futures" : "Generate future replay"}
           </Button>
         </div>
+        {loading && <div className="mt-4 flex items-center gap-3 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3"><Loader2 className="animate-spin text-teal-600" size={18} /><span className="text-sm font-semibold text-teal-800">{statusMessage || "Initializing AI engine..."}</span></div>}
       </form>
+
+      {loading && <AnalysisSkeleton />}
 
       {result && (
         <div className="mt-8">

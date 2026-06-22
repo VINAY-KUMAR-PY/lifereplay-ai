@@ -1,5 +1,7 @@
 # Scalability Plan
 
+The root `docker-compose.yml`, backend/frontend Dockerfiles, and Nginx configuration provide a concrete container-based deployment starting point. Run `docker compose up --build` to exercise the same service boundary locally before moving the containers to a managed platform.
+
 ## Multi-User SaaS Path
 
 LifeReplay AI can become a multi-user SaaS by adding:
@@ -100,4 +102,3 @@ LifeReplay AI can scale into specialized verticals:
 - Personal growth: relocation, lifestyle changes, time allocation
 
 Each vertical can use custom scoring rubrics, domain prompts, and specialized dashboards.
-
