@@ -51,7 +51,7 @@ export default function HistoryPage() {
         </div>
       )}
 
-      {error && <p className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
+      {error && <p role="alert" className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
 
       {!!items.length && <div className="mt-6 flex flex-wrap gap-3"><input type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search decisions..." className="min-w-48 flex-1 rounded-xl border border-slate-300 px-4 py-2 text-sm text-slate-950 shadow-sm outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-100" /><div className="flex flex-wrap gap-2">{riskCategories.map((category) => <button key={category} type="button" onClick={() => setFilterRisk(category)} className={`rounded-lg px-3 py-2 text-xs font-black transition ${filterRisk === category ? "bg-slate-950 text-white" : "border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>{category}</button>)}</div></div>}
 

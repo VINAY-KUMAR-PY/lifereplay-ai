@@ -89,14 +89,24 @@ export function downloadDecisionReport(result: AnalysisResult) {
     ensureSpace(8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(15, 23, 42); doc.text(label as string, margin, y); y += 5; list(items as string[]);
   });
 
-  sectionHeader("SWOT Analysis");
-  const swot = [
-    ["Strengths", [result.bestCaseFuture, result.confidenceExplanation]],
-    ["Weaknesses", result.personalRisks.slice(0, 3)],
-    ["Opportunities", [result.mostLikelyFuture, ...result.recommendedNextSteps.slice(0, 2)]],
-    ["Threats", [result.worstCaseFuture, ...result.financialRisks.slice(0, 2)]]
-  ] as const;
-  swot.forEach(([label, items]) => { ensureSpace(8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(15, 23, 42); doc.text(label, margin, y); y += 5; list([...items]); });
+  sectionHeader("Strategic Summary");
+  const strategicSections: [string, string[]][] = [
+    ["Upside (Best case)", [result.bestCaseFuture]],
+    ["Downside (Worst case)", [result.worstCaseFuture]],
+    ["Most likely outcome", [result.mostLikelyFuture]],
+    ["Career risks to mitigate", result.careerRisks],
+    ["Financial risks to manage", result.financialRisks],
+    ["Recommended immediate actions", result.recommendedNextSteps.slice(0, 3)]
+  ];
+  for (const [label, items] of strategicSections) {
+    ensureSpace(8);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.text(label, margin, y);
+    y += 5;
+    list(items);
+  }
 
   sectionHeader("Risk Matrix");
   [["Career", 68, 74, result.careerRisks[0]], ["Financial", 56, 70, result.financialRisks[0]], ["Learning", 52, 58, "Use weekly milestones and mentor feedback."], ["Market", 62, 72, "Review live job descriptions and demand monthly."], ["Personal", 48, 55, result.personalRisks[0]]].forEach(([type, probability, impact, mitigation]) => paragraph(`${type}: Probability ${probability}% | Impact ${impact}% | Mitigation: ${mitigation}`));

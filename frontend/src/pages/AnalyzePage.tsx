@@ -103,14 +103,14 @@ export default function AnalyzePage() {
             </button>
           ))}
         </div>
-        {error && <p className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{error}</p>}
+        {error && <p role="alert" className="mt-3 rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{error}</p>}
         <div className="mt-5">
           <Button type="submit" disabled={loading}>
             {loading ? <Loader2 className="animate-spin" size={18} /> : <WandSparkles size={18} />}
             {loading ? "Simulating futures" : "Generate future replay"}
           </Button>
         </div>
-        {loading && <div className="mt-4 flex items-center gap-3 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3"><Loader2 className="animate-spin text-teal-600" size={18} /><span className="text-sm font-semibold text-teal-800">{statusMessage || "Initializing AI engine..."}</span></div>}
+        {loading && <div aria-live="polite" className="mt-4 flex items-center gap-3 rounded-xl border border-teal-200 bg-teal-50 px-4 py-3"><Loader2 className="animate-spin text-teal-600" size={18} /><span className="text-sm font-semibold text-teal-800">{statusMessage || "Initializing AI engine..."}</span></div>}
       </form>
 
       {loading && <AnalysisSkeleton />}

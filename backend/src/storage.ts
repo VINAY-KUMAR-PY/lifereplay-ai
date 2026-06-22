@@ -24,53 +24,13 @@ async function saveCollectionItem<T>(file: string, item: T, limit: number): Prom
   return item;
 }
 
-async function ensureHistoryFile() {
-  await fs.mkdir(dataDir, { recursive: true });
-
-  try {
-    await fs.access(historyFile);
-  } catch {
-    await fs.writeFile(historyFile, "[]", "utf-8");
-  }
-}
-
-export async function readHistory(): Promise<AnalysisResult[]> {
-  await ensureHistoryFile();
-  const raw = await fs.readFile(historyFile, "utf-8");
-
-  try {
-    return JSON.parse(raw) as AnalysisResult[];
-  } catch {
-    await fs.writeFile(historyFile, "[]", "utf-8");
-    return [];
-  }
-}
+export const readHistory = () => readCollection<AnalysisResult>(historyFile);
+export const readComparisons = () => readCollection<ComparisonResult>(comparisonsFile);
 
 export async function saveAnalysis(analysis: AnalysisResult): Promise<AnalysisResult> {
   const history = await readHistory();
-  const nextHistory = [analysis, ...history].slice(0, 100);
-  await fs.writeFile(historyFile, JSON.stringify(nextHistory, null, 2), "utf-8");
+  await fs.writeFile(historyFile, JSON.stringify([analysis, ...history].slice(0, 100), null, 2), "utf-8");
   return analysis;
-}
-
-async function ensureComparisonsFile() {
-  await fs.mkdir(dataDir, { recursive: true });
-  try {
-    await fs.access(comparisonsFile);
-  } catch {
-    await fs.writeFile(comparisonsFile, "[]", "utf-8");
-  }
-}
-
-export async function readComparisons(): Promise<ComparisonResult[]> {
-  await ensureComparisonsFile();
-  const raw = await fs.readFile(comparisonsFile, "utf-8");
-  try {
-    return JSON.parse(raw) as ComparisonResult[];
-  } catch {
-    await fs.writeFile(comparisonsFile, "[]", "utf-8");
-    return [];
-  }
 }
 
 export async function saveComparison(comparison: ComparisonResult): Promise<ComparisonResult> {

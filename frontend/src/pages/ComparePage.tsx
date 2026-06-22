@@ -84,7 +84,7 @@ export default function ComparePage() {
           {loading ? <Loader2 className="animate-spin" size={18} /> : <GitCompare size={18} />}
           Compare
         </Button>
-        {error && <p className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 lg:col-span-3">{error}</p>}
+        {error && <p role="alert" className="rounded-xl bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700 lg:col-span-3">{error}</p>}
       </form>
 
       {result && (

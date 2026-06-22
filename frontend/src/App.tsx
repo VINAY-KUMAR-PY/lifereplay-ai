@@ -9,10 +9,11 @@ import LandingPage from "./pages/LandingPage";
 import SharedDecisionPage from "./pages/SharedDecisionPage";
 import FutureSimulationPage from "./pages/FutureSimulationPage";
 import RecruiterViewPage from "./pages/RecruiterViewPage";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 export default function App() {
   return (
-    <Routes>
+    <ErrorBoundary><Routes>
       <Route element={<Layout />}>
         <Route path="/" element={<LandingPage />} />
         <Route path="/analyze" element={<AnalyzePage />} />
@@ -24,6 +25,6 @@ export default function App() {
         <Route path="/future-simulation" element={<FutureSimulationPage />} />
         <Route path="/recruiter-view" element={<RecruiterViewPage />} />
       </Route>
-    </Routes>
+    </Routes></ErrorBoundary>
   );
 }

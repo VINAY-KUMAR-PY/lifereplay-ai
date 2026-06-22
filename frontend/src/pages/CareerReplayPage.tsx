@@ -4,6 +4,7 @@ import { Button } from "../components/Button";
 import { MarketIntelligencePanel, RiskMatrixPanel, ScorecardPanel, SwotPanel, WhyRecommendation } from "../components/IntelligencePanels";
 import { ScoreRing } from "../components/ScoreRing";
 import { SectionHeader } from "../components/SectionHeader";
+import { CareerReplaySkeleton } from "../components/Skeleton";
 import { replayCareers } from "../services/api";
 import type { CareerPath, CareerReplayResult } from "../types";
 import { useDemoData } from "../context/DemoDataContext";
@@ -187,7 +188,7 @@ export default function CareerReplayPage() {
             {resumeFile && <button type="button" onClick={() => { setResumeFile(null); setBackground(""); }} className="text-xs font-semibold text-rose-600 hover:text-rose-800">Remove</button>}
             <span className="text-xs font-semibold text-slate-400">{background.length}/1000</span>
           </div>
-          {error && <p className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{error}</p>}
+          {error && <p role="alert" className="mt-3 rounded-lg bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700">{error}</p>}
           <div className="mt-5">
             <Button type="submit" disabled={loading}>
               {loading ? <Loader2 className="animate-spin" size={18} /> : <Route size={18} />}
@@ -196,6 +197,8 @@ export default function CareerReplayPage() {
           </div>
         </div>
       </form>
+
+      {loading && <CareerReplaySkeleton />}
 
       {result && (
         <section className="mt-8 space-y-6">

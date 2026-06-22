@@ -1,6 +1,7 @@
 import { Activity, Award, BarChart3, Gauge, GitCompare, ScanSearch, ShieldAlert, Sparkles, Telescope } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { SectionHeader } from "../components/SectionHeader";
 import { DashboardSkeleton } from "../components/Skeleton";
 import { getDashboard } from "../services/api";
@@ -8,39 +9,6 @@ import type { DashboardMetrics } from "../types";
 import { formatDate } from "../utils/format";
 import { useDemoData } from "../context/DemoDataContext";
 import { demoDashboard } from "../data/demoData";
-
-function TrendChart({ title, values, color }: { title: string; values: number[]; color: string }) {
-  const data = values.length ? values : [0];
-  const points = data
-    .map((value, index) => {
-      const x = data.length === 1 ? 96 : (index / (data.length - 1)) * 192;
-      const y = 72 - (Math.max(0, Math.min(100, value)) / 100) * 64;
-      return `${x},${y}`;
-    })
-    .join(" ");
-
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="text-lg font-black text-slate-950">{title}</h2>
-        <span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-black text-slate-600">
-          {data[data.length - 1]}%
-        </span>
-      </div>
-      <p className="mt-1 text-xs font-semibold text-slate-500">Last {values.length} decisions</p>
-      <svg viewBox="0 0 210 96" className="mt-3 h-44 w-full overflow-visible" role="img" aria-label={title}>
-        {[8, 40, 72].map((y) => <path key={y} d={`M16 ${y}H208`} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />)}
-        <text x="0" y="12" fontSize="7" fill="#64748b">100</text><text x="5" y="76" fontSize="7" fill="#64748b">0</text>
-        <polyline points={points} transform="translate(16 0)" fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        {data.map((value, index) => {
-          const x = data.length === 1 ? 96 : (index / (data.length - 1)) * 192;
-          const y = 72 - (Math.max(0, Math.min(100, value)) / 100) * 64;
-          return <g key={`${value}-${index}`} className="group"><circle cx={x + 16} cy={y} r="5" fill={color}><title>{`Decision #${index + 1}: ${value}%`}</title></circle><text x={x + 16} y="91" textAnchor="middle" fontSize="6" fill="#64748b">#{index + 1}</text></g>;
-        })}
-      </svg>
-    </div>
-  );
-}
 
 export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardMetrics | null>(null);
@@ -71,7 +39,7 @@ export default function DashboardPage() {
 
       {loading && <DashboardSkeleton />}
 
-      {error && <p className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
+      {error && <p role="alert" className="mt-8 rounded-md bg-rose-50 px-4 py-3 font-semibold text-rose-700">{error}</p>}
 
       {dashboard && (
         <section className="mt-8 space-y-6">
@@ -107,8 +75,10 @@ export default function DashboardPage() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <TrendChart title="Confidence Trend" values={dashboard.confidenceTrend} color="#14b8a6" />
-            <TrendChart title="Opportunity Trend" values={dashboard.opportunityTrend} color="#6366f1" />
+            {[
+              { title: "Confidence Trend", values: dashboard.confidenceTrend, color: "#14b8a6", label: "Confidence" },
+              { title: "Opportunity Trend", values: dashboard.opportunityTrend, color: "#6366f1", label: "Opportunity" }
+            ].map((trend) => <div key={trend.title} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div className="flex items-center justify-between gap-4"><h2 className="text-lg font-black text-slate-950">{trend.title}</h2><span className="rounded-lg bg-slate-100 px-2 py-1 text-xs font-black text-slate-600">{trend.values[trend.values.length - 1] ?? 0}%</span></div><p className="mt-1 text-xs font-semibold text-slate-500">Last {trend.values.length} decisions</p>{trend.values.length > 0 ? <ResponsiveContainer width="100%" height={176}><LineChart data={trend.values.map((value, index) => ({ name: `#${index + 1}`, score: value }))} margin={{ top: 10, right: 10, left: -24, bottom: 0 }}><CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" /><XAxis dataKey="name" tick={{ fontSize: 10, fill: "#64748b" }} /><YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "#64748b" }} /><Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: "1px solid #e2e8f0" }} formatter={(value) => [`${Number(value)}%`, trend.label]} /><Line type="monotone" dataKey="score" stroke={trend.color} strokeWidth={3} dot={{ r: 4, fill: trend.color }} activeDot={{ r: 6 }} /></LineChart></ResponsiveContainer> : <p className="mt-6 text-sm text-slate-500">Analyze decisions to build this trend.</p>}</div>)}
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
@@ -139,13 +109,7 @@ export default function DashboardPage() {
                 <h2 className="text-lg font-black text-slate-950">Risk distribution</h2>
               </div>
               {Object.keys(dashboard.riskDistribution).length ? (
-                <div className="flex h-44 items-end gap-3 border-b border-slate-200 px-2 pb-7">
-                  {Object.entries(dashboard.riskDistribution).map(([risk, value], index) => {
-                    const maximum = Math.max(...Object.values(dashboard.riskDistribution), 1);
-                    const colors = ["#14b8a6", "#6366f1", "#f59e0b", "#ef4444", "#10b981"];
-                    return <div key={risk} className="relative flex h-full flex-1 items-end justify-center"><div title={`${risk}: ${value}`} className="w-full max-w-12 rounded-t transition hover:opacity-80" style={{ height: `${Math.max(10, (value / maximum) * 100)}%`, backgroundColor: colors[index % colors.length] }} /><span className="absolute -bottom-6 text-[10px] font-bold text-slate-600">{risk}</span><span className="absolute text-xs font-black text-slate-700" style={{ bottom: `${Math.max(10, (value / maximum) * 100)}%` }}>{value}</span></div>;
-                  })}
-                </div>
+                <ResponsiveContainer width="100%" height={176}><BarChart data={Object.entries(dashboard.riskDistribution).map(([risk, count]) => ({ risk, count }))} margin={{ top: 5, right: 5, left: -24, bottom: 5 }}><CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" /><XAxis dataKey="risk" tick={{ fontSize: 10, fill: "#64748b" }} /><YAxis tick={{ fontSize: 10, fill: "#64748b" }} allowDecimals={false} /><Tooltip contentStyle={{ borderRadius: 8, fontSize: 12, border: "1px solid #e2e8f0" }} formatter={(value) => [Number(value), "Decisions"]} /><Bar dataKey="count" radius={[4, 4, 0, 0]}>{Object.keys(dashboard.riskDistribution).map((risk, index) => <Cell key={risk} fill={["#14b8a6", "#6366f1", "#f59e0b", "#ef4444", "#10b981"][index % 5]} />)}</Bar></BarChart></ResponsiveContainer>
               ) : (
                 <p className="text-sm leading-6 text-slate-600">Analyze decisions to build risk insights.</p>
               )}

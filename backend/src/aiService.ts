@@ -110,10 +110,6 @@ const model = apiKey
   ? new GoogleGenerativeAI(apiKey).getGenerativeModel({ model: "gemini-1.5-flash" })
   : null;
 
-if (!apiKey) {
-  console.warn("[LifeReplay AI] GEMINI_API_KEY is missing. Using polished mock AI responses.");
-}
-
 export async function analyzeDecision(decision: string): Promise<AnalysisResult> {
   if (!model) {
     return createMockAnalysis(decision);
@@ -250,8 +246,43 @@ Be specific, practical, and avoid generic motivational wording.
 export async function simulateFutures(scenarios: string[], profile = ""): Promise<FutureSimulationResult> {
   if (!model) return createMockFutureSimulation(scenarios, profile);
   try {
-    const prompt = `You are LifeReplay AI, an Indian career outcome simulation and management consulting engine. Compare future paths as quantified scenarios, not generic advice. Profile: "${profile || "No profile supplied"}". Scenarios: ${scenarios.join(", ")}.
-Return JSON with scenarios and bestScenario and reasoning. Preserve each scenario name. Each scenario requires salaryAfterOneYear, salaryAfterThreeYears, skillsRequired, successProbability, hiringDifficulty, timeInvestment, financialImpact, opportunityCost, careerImpact, riskLevel, finalOutlook, scorecard, swot, riskMatrix, marketIntelligence. scorecard has nine 0-100 fields: marketDemand, learningCurve, risk, salaryPotential, competition, stability, growthPotential, jobReadiness, overallScore. swot has 3-5 distinct items per quadrant. riskMatrix has exactly Career, Financial, Learning, Market, Personal entries with probability, impact, mitigation. marketIntelligence contains hiringDemand, entryBarrier, salaryGrowth, competitionLevel, automationRisk as Low/Medium/High and a locationAdvantage. reasoning must contain exactly five specific reasons for the winner. No filler, motivational fluff, or repeated information across sections.`;
+    const prompt = `You are LifeReplay AI Future Simulation Engine, a quantitative career outcome analyst for Indian students, freshers, and early-career professionals. You think like a management consultant and labor economist with deep knowledge of the Indian job market in 2025-2026.
+
+Your task: Compare these future career scenarios as quantified, evidence-grounded outcomes. Never use motivational filler. Every number must be calibrated to real Indian market conditions.
+
+USER PROFILE:
+"${profile || "No profile supplied. Use a generic Indian engineering fresher baseline."}"
+
+SCENARIOS TO COMPARE:
+${scenarios.map((scenario, index) => `${index + 1}. ${scenario}`).join("\n")}
+
+CALIBRATION RULES (apply to every scenario):
+- Salary ranges must reflect the real Indian fresher/junior market in INR LPA. Do not invent unrealistic figures.
+- AI Engineer: entry INR 6-14 LPA, 3-year INR 16-35 LPA if portfolio strong.
+- Software Engineer: entry INR 4-12 LPA, 3-year INR 10-25 LPA.
+- Data Scientist: entry INR 5-12 LPA, 3-year INR 12-28 LPA.
+- Government Exam success: INR 6-10 LPA equivalent plus benefits, 2-5 year preparation window.
+- Startup Founder: INR 0-2 LPA first year, highly variable thereafter.
+- Higher Studies abroad: negative income for 2 years, then INR 20-60 LPA depending on program.
+- successProbability must be honest: Government Exams <=40%, Startup Founder <=30%, Software Engineer >=60% for a prepared candidate.
+- hiringDifficulty: High for AI Engineer and Government Exams, Medium for Data Scientist and Higher Studies, Low for Software Engineer with good fundamentals.
+- scorecard.overallScore must be the mean of the other 8 scorecard fields, rounded to the nearest integer.
+
+Return ONLY valid JSON matching this exact root structure:
+{
+  "scenarios": ["array of scenario objects"],
+  "bestScenario": "exact name of the winning scenario",
+  "reasoning": ["exactly 5 strings grounded in scores, profile, market, risk, and opportunity cost"]
+}
+
+Each scenario object MUST contain ALL of these fields:
+name (exact string from input), salaryAfterOneYear (string with INR LPA range), salaryAfterThreeYears (string with INR LPA range), skillsRequired (array of 3-5 strings), successProbability (integer 0-100), hiringDifficulty (Low|Medium|High), timeInvestment, financialImpact, opportunityCost, careerImpact, riskLevel (Low|Medium|High), finalOutlook,
+scorecard: { marketDemand, learningCurve, risk, salaryPotential, competition, stability, growthPotential, jobReadiness, overallScore - all integers 0-100 },
+swot: { strengths: [3-5], weaknesses: [3-5], opportunities: [3-5], threats: [3-5] },
+riskMatrix: [exactly 5 objects, one each for Career/Financial/Learning/Market/Personal, each with probability, impact, mitigation],
+marketIntelligence: { hiringDemand, entryBarrier, salaryGrowth, competitionLevel, automationRisk as Low|Medium|High, locationAdvantage as a specific string }.
+
+Every section must add distinct information. Do not repeat scenario text inside SWOT, risk mitigations, or recommendation reasons.`;
     const result = await model.generateContent({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 4096 } });
     const parsed = futureSimulationSchema.parse(JSON.parse(result.response.text()));
     return { id: nanoid(), createdAt: new Date().toISOString(), ...parsed };

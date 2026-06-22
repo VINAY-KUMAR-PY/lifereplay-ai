@@ -2,6 +2,12 @@ import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
 dotenv.config({ path: fileURLToPath(new URL("../.env", import.meta.url)) });
 
+if (!process.env.PORT) console.warn("[LifeReplay AI] PORT not set, defaulting to 5000");
+if (!process.env.FRONTEND_URL) console.warn("[LifeReplay AI] FRONTEND_URL not set, defaulting to http://localhost:5173");
+if (!process.env.GEMINI_API_KEY) {
+  console.warn("[LifeReplay AI] GEMINI_API_KEY not set. Platform will use deterministic mock AI responses.");
+}
+
 import cors from "cors";
 import express from "express";
 import { z } from "zod";
@@ -22,6 +28,14 @@ app.use(
 app.use(express.json({ limit: "1mb" }));
 
 const requestWindows = new Map<string, { count: number; resetAt: number }>();
+
+// Prune expired rate-limit windows every 5 minutes to prevent memory growth.
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, window] of requestWindows) {
+    if (window.resetAt <= now) requestWindows.delete(key);
+  }
+}, 5 * 60 * 1000).unref();
 const aiLimiter: express.RequestHandler = (req, res, next) => {
   const now = Date.now();
   const key = req.ip ?? "unknown";
@@ -74,6 +88,7 @@ app.get("/health", (_req, res) => {
   res.json({
     status: "ok",
     app: "LifeReplay AI",
+    mode: process.env.GEMINI_API_KEY ? "live" : "mock",
     timestamp: new Date().toISOString()
   });
 });

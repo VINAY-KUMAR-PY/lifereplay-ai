@@ -3,6 +3,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { Button } from "../components/Button";
 import { ScoreRing } from "../components/ScoreRing";
 import { SectionHeader } from "../components/SectionHeader";
+import { RecruiterViewSkeleton } from "../components/Skeleton";
 import { generateRecruiterView } from "../services/api";
 import type { RecruiterViewResult } from "../types";
 import { useDemoData } from "../context/DemoDataContext";
@@ -37,9 +38,11 @@ export default function RecruiterViewPage() {
     <form onSubmit={handleSubmit} className="mt-8 grid gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-[0_24px_80px_rgba(15,23,42,0.08)] lg:grid-cols-[0.38fr_1fr]">
       <div><label htmlFor="target-role" className="text-sm font-black text-slate-800">Target role</label><input id="target-role" value={targetRole} onChange={(event) => setTargetRole(event.target.value)} maxLength={100} className="mt-3 w-full rounded-xl border border-slate-300 px-4 py-3 text-slate-950 outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-100" /></div>
       <div><label htmlFor="recruiter-profile" className="text-sm font-black text-slate-800">Education, skills, projects, internships, and experience</label><textarea id="recruiter-profile" rows={5} maxLength={2000} value={profile} onChange={(event) => setProfile(event.target.value)} className="mt-3 w-full resize-none rounded-xl border border-slate-300 px-4 py-3 leading-7 text-slate-950 outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-100" /></div>
-      {error && <p className="rounded-md bg-rose-50 p-3 text-sm font-bold text-rose-700 lg:col-span-2">{error}</p>}
+      {error && <p role="alert" className="rounded-md bg-rose-50 p-3 text-sm font-bold text-rose-700 lg:col-span-2">{error}</p>}
       <Button type="submit" disabled={loading} className="lg:col-span-2 lg:justify-self-start">{loading ? <Loader2 className="animate-spin" size={18} /> : <ScanSearch size={18} />}{loading ? "Reviewing profile" : "Generate recruiter assessment"}</Button>
     </form>
+
+    {loading && <RecruiterViewSkeleton />}
 
     {result && <section className="mt-8 space-y-6"><div className="flex justify-end"><Button type="button" variant="secondary" onClick={() => downloadRecruiterIntelligenceReport(result)}><Download size={17} />Download Recruiter Report</Button></div>
       <div className="grid gap-5 lg:grid-cols-[0.35fr_0.65fr]"><ScoreRing score={result.readinessScore} label="Recruiter readiness" /><div className="rounded-md bg-slate-950 p-6 text-white"><div className="flex items-center gap-2 text-teal-300"><Target size={18} /><p className="text-xs font-black uppercase tracking-[0.18em]">Recruiter verdict</p></div><h2 className="mt-3 text-2xl font-black">{result.targetRole}</h2><p className="mt-4 leading-7 text-slate-200">{result.recruiterVerdict}</p></div></div>
