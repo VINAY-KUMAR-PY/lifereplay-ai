@@ -21,6 +21,9 @@ export interface DecisionScorecard {
 
 export interface SwotAnalysis { strengths: string[]; weaknesses: string[]; opportunities: string[]; threats: string[]; }
 export interface RiskMatrixItem { type: "Career" | "Financial" | "Learning" | "Market" | "Personal"; probability: number; impact: number; mitigation: string; }
+export interface MarketIntelligence { hiringDemand: RiskLevel; entryBarrier: RiskLevel; salaryGrowth: RiskLevel; competitionLevel: RiskLevel; automationRisk: RiskLevel; locationAdvantage: string; }
+export interface RoadmapStep { period: "Week 1-2" | "Week 3-4" | "Month 2" | "Month 3" | "Month 4-6"; skillFocus: string; projectTask: string; proofOfWork: string; evaluationCheckpoint: string; }
+export interface RecruiterImprovement { action: string; impact: "High Impact" | "Medium Impact" | "Low Impact"; }
 
 export interface AnalysisResult {
   id: string;
@@ -77,6 +80,7 @@ export interface CareerPathReplay {
   scorecard: DecisionScorecard;
   swot: SwotAnalysis;
   riskMatrix: RiskMatrixItem[];
+  marketIntelligence: MarketIntelligence;
 }
 
 export interface CareerReplayResult {
@@ -91,14 +95,14 @@ export interface FutureScenario {
   name: string; salaryAfterOneYear: string; salaryAfterThreeYears: string; skillsRequired: string[];
   successProbability: number; hiringDifficulty: RiskLevel; timeInvestment: string; financialImpact: string;
   opportunityCost: string; careerImpact: string; riskLevel: RiskLevel; finalOutlook: string;
-  scorecard: DecisionScorecard; swot: SwotAnalysis; riskMatrix: RiskMatrixItem[];
+  scorecard: DecisionScorecard; swot: SwotAnalysis; riskMatrix: RiskMatrixItem[]; marketIntelligence: MarketIntelligence;
 }
 export interface FutureSimulationResult { id: string; createdAt: string; scenarios: FutureScenario[]; bestScenario: string; reasoning: string[]; }
 export interface RecruiterViewResult {
   id: string; createdAt: string; targetRole: string; readinessScore: number; missingSkills: string[];
   missingProjects: string[]; resumeGaps: string[]; interviewWeaknesses: string[];
   hiringProbability: { threeMonths: number; sixMonths: number; twelveMonths: number };
-  recruiterVerdict: string; improvementPlan: string[];
+  recruiterVerdict: string; improvementPlan: RecruiterImprovement[]; personalizedRoadmap: RoadmapStep[];
 }
 
 export interface DashboardMetrics {

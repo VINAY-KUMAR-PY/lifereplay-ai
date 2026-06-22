@@ -18,12 +18,12 @@ import { Link } from "react-router-dom";
 const features = [
   {
     icon: Telescope,
-    title: "Future Outcome Simulator",
+    title: "Career Battle Simulator",
     text: "Compare salaries, success probability, hiring difficulty, opportunity cost, SWOT, and risk across multiple futures."
   },
   {
     icon: ScanSearch,
-    title: "Recruiter View",
+    title: "Recruiter Intelligence Engine",
     text: "See shortlist readiness, missing evidence, interview weaknesses, and hiring probability through a recruiter's lens."
   },
   {

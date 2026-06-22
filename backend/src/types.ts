@@ -40,6 +40,28 @@ export interface RiskMatrixItem {
   mitigation: string;
 }
 
+export interface MarketIntelligence {
+  hiringDemand: "Low" | "Medium" | "High";
+  entryBarrier: "Low" | "Medium" | "High";
+  salaryGrowth: "Low" | "Medium" | "High";
+  competitionLevel: "Low" | "Medium" | "High";
+  automationRisk: "Low" | "Medium" | "High";
+  locationAdvantage: string;
+}
+
+export interface RoadmapStep {
+  period: "Week 1-2" | "Week 3-4" | "Month 2" | "Month 3" | "Month 4-6";
+  skillFocus: string;
+  projectTask: string;
+  proofOfWork: string;
+  evaluationCheckpoint: string;
+}
+
+export interface RecruiterImprovement {
+  action: string;
+  impact: "High Impact" | "Medium Impact" | "Low Impact";
+}
+
 export interface AnalysisResult {
   id: string;
   decision: string;
@@ -100,6 +122,7 @@ export interface CareerPathReplay {
   scorecard: DecisionScorecard;
   swot: SwotAnalysis;
   riskMatrix: RiskMatrixItem[];
+  marketIntelligence: MarketIntelligence;
 }
 
 export interface CareerReplayResult {
@@ -126,6 +149,7 @@ export interface FutureScenario {
   scorecard: DecisionScorecard;
   swot: SwotAnalysis;
   riskMatrix: RiskMatrixItem[];
+  marketIntelligence: MarketIntelligence;
 }
 
 export interface FutureSimulationResult {
@@ -147,7 +171,8 @@ export interface RecruiterViewResult {
   interviewWeaknesses: string[];
   hiringProbability: { threeMonths: number; sixMonths: number; twelveMonths: number };
   recruiterVerdict: string;
-  improvementPlan: string[];
+  improvementPlan: RecruiterImprovement[];
+  personalizedRoadmap: RoadmapStep[];
 }
 
 export interface DashboardMetrics {

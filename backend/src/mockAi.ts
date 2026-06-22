@@ -192,7 +192,7 @@ export function createMockComparison(optionA: string, optionB: string): Comparis
   };
 }
 
-type BaseCareerProfile = Omit<CareerPathReplay, "path" | "scorecard" | "swot" | "riskMatrix">;
+type BaseCareerProfile = Omit<CareerPathReplay, "path" | "scorecard" | "swot" | "riskMatrix" | "marketIntelligence">;
 
 const careerProfiles: Record<string, BaseCareerProfile> = {
   "AI Engineer": {
@@ -380,6 +380,30 @@ function createRiskMatrix(path: string, risk: "Low" | "Medium" | "High"): RiskMa
   ];
 }
 
+function scoreLevel(score: number): "Low" | "Medium" | "High" {
+  return score >= 75 ? "High" : score >= 50 ? "Medium" : "Low";
+}
+
+function createMarketIntelligence(path: string, profile: BaseCareerProfile): CareerPathReplay["marketIntelligence"] {
+  const scorecard = createScorecard(path, profile.careerFitScore, profile.jobReadinessScore, profile.growthPotential, profile.riskLevel);
+  const lower = path.toLowerCase();
+  const locationAdvantage = /ai|data|software|developer/.test(lower)
+    ? "Bengaluru, Hyderabad, Pune, and NCR offer the strongest concentration of relevant entry-level roles."
+    : /government|civil|upsc|ssc|bank/.test(lower)
+      ? "Preparation access is location-flexible, while coaching ecosystems are strongest in Delhi, Hyderabad, and major state capitals."
+      : /startup|founder/.test(lower)
+        ? "Bengaluru, Hyderabad, Mumbai, and NCR provide denser founder, customer, and funding networks."
+        : "Location value depends on institution, employer concentration, and access to practitioners in this field.";
+  return {
+    hiringDemand: scoreLevel(scorecard.marketDemand),
+    entryBarrier: profile.learningCurve === "Steep" ? "High" : profile.learningCurve === "Moderate" ? "Medium" : "Low",
+    salaryGrowth: scoreLevel(profile.growthPotential),
+    competitionLevel: scorecard.competition >= 70 ? "Medium" : "High",
+    automationRisk: /data|software|content|support/.test(lower) ? "Medium" : /government|founder|higher/.test(lower) ? "Low" : "Medium",
+    locationAdvantage
+  };
+}
+
 export function createMockCareerReplay(paths: CareerPath[], background = ""): CareerReplayResult {
   const selected: CareerPath[] = paths.length ? paths : ["AI Engineer", "Software Engineer", "Data Scientist"];
   const profiles = selected.map((path) => {
@@ -392,7 +416,8 @@ export function createMockCareerReplay(paths: CareerPath[], background = ""): Ca
       jobReadinessScore: clampScore(base.jobReadinessScore + Math.floor(backgroundBoost / 2)),
       scorecard: createScorecard(path, base.careerFitScore + backgroundBoost, base.jobReadinessScore + Math.floor(backgroundBoost / 2), base.growthPotential, base.riskLevel),
       swot: createSwot(path, base.skillRoadmap),
-      riskMatrix: createRiskMatrix(path, base.riskLevel)
+      riskMatrix: createRiskMatrix(path, base.riskLevel),
+      marketIntelligence: createMarketIntelligence(path, base)
     };
   });
   const best = [...profiles].sort((a, b) => b.careerFitScore + b.jobReadinessScore - (a.careerFitScore + a.jobReadinessScore))[0];
@@ -433,7 +458,8 @@ export function createMockFutureSimulation(scenarios: string[], profile = ""): F
       finalOutlook: `${name} is ${probability >= 75 ? "a strong" : "a conditional"} option when its roadmap is validated with external evidence.`,
       scorecard,
       swot: createSwot(name, base.skillRoadmap),
-      riskMatrix: createRiskMatrix(name, base.riskLevel)
+      riskMatrix: createRiskMatrix(name, base.riskLevel),
+      marketIntelligence: createMarketIntelligence(name, base)
     };
   });
   const best = [...results].sort((a, b) => b.scorecard.overallScore - a.scorecard.overallScore)[0];
@@ -460,6 +486,19 @@ export function createMockRecruiterView(targetRole: string, profile: string): Re
     interviewWeaknesses: ["Likely shallow follow-up answers on project decisions", "Limited evidence for debugging under uncertainty", "Behavioral stories need Situation-Action-Result structure"],
     hiringProbability: { threeMonths: clampScore(readinessScore - 22), sixMonths: clampScore(readinessScore - 4), twelveMonths: clampScore(readinessScore + 16) },
     recruiterVerdict: readinessScore >= 75 ? "Interview-ready for selected entry roles, provided projects are presented with measurable impact." : "Promising profile, but not yet consistently shortlist-ready for the target role.",
-    improvementPlan: ["Rewrite projects around problem, ownership, architecture, and measurable result", "Close the top two skill gaps with one production-style project", "Run six role-specific mock interviews and maintain an error log", "Build referrals through targeted practitioner feedback", "Apply in weekly batches and track conversion by resume version"]
+    improvementPlan: [
+      { action: `Ship one production-style ${targetRole} project with a measurable user or performance outcome.`, impact: "High Impact" },
+      { action: "Rewrite project bullets around ownership, architecture decisions, and quantified results.", impact: "High Impact" },
+      { action: `Complete six ${targetRole} mock interviews and maintain a recurring-error log.`, impact: "High Impact" },
+      { action: "Request targeted feedback from five practitioners and convert two conversations into referrals.", impact: "Medium Impact" },
+      { action: "Track application conversion by resume version and role segment each week.", impact: "Low Impact" }
+    ],
+    personalizedRoadmap: [
+      { period: "Week 1-2", skillFocus: `Audit ${targetRole} fundamentals against 20 current job descriptions.`, projectTask: "Define one portfolio project's user, scope, architecture, and success metric.", proofOfWork: "Published project brief, skill-gap matrix, and baseline assessment.", evaluationCheckpoint: "A practitioner confirms the scope demonstrates target-role work." },
+      { period: "Week 3-4", skillFocus: "Close the two highest-frequency technical gaps found in the audit.", projectTask: "Build the core workflow with tests, error handling, and version control.", proofOfWork: "Working repository with documented decisions and a demoable core feature.", evaluationCheckpoint: "Core workflow passes a peer code review and realistic test cases." },
+      { period: "Month 2", skillFocus: `Production patterns expected from junior ${targetRole} candidates.`, projectTask: "Deploy the project, instrument one outcome metric, and collect user feedback.", proofOfWork: "Live deployment, architecture note, usage evidence, and iteration log.", evaluationCheckpoint: "Five users or two practitioners can verify the project's usefulness." },
+      { period: "Month 3", skillFocus: "Role-specific interviews, debugging, and technical communication.", projectTask: "Complete six mock interviews and rewrite resume bullets using project evidence.", proofOfWork: "Interview error log, revised resume, and concise project walkthrough.", evaluationCheckpoint: "Reach 75% accuracy on recurring interview topics and clear mock feedback." },
+      { period: "Month 4-6", skillFocus: "Application targeting, referrals, and advanced specialization.", projectTask: "Run weekly application batches while deepening one differentiated project feature.", proofOfWork: "Conversion dashboard, referral pipeline, and one advanced case study.", evaluationCheckpoint: "Review interview conversion monthly and change positioning if it remains below 8%." }
+    ]
   };
 }

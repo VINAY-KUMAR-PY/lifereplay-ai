@@ -1,7 +1,7 @@
 import { BriefcaseBusiness, CheckCircle2, Clock3, FileText, GraduationCap, Loader2, Plus, Route, ShieldAlert, X } from "lucide-react";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { Button } from "../components/Button";
-import { RiskMatrixPanel, ScorecardPanel, SwotPanel, WhyRecommendation } from "../components/IntelligencePanels";
+import { MarketIntelligencePanel, RiskMatrixPanel, ScorecardPanel, SwotPanel, WhyRecommendation } from "../components/IntelligencePanels";
 import { ScoreRing } from "../components/ScoreRing";
 import { SectionHeader } from "../components/SectionHeader";
 import { replayCareers } from "../services/api";
@@ -278,7 +278,7 @@ export default function CareerReplayPage() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-6 space-y-4"><ScorecardPanel scorecard={path.scorecard} /><SwotPanel swot={path.swot} /><RiskMatrixPanel risks={path.riskMatrix} /></div>
+                <div className="mt-6 space-y-4"><ScorecardPanel scorecard={path.scorecard} /><MarketIntelligencePanel market={path.marketIntelligence} /><SwotPanel swot={path.swot} /><RiskMatrixPanel risks={path.riskMatrix} /></div>
               </article>
             ))}
           </div>

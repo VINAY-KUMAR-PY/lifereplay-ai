@@ -11,6 +11,15 @@ const scorecardSchema = z.object({
 });
 const swotSchema = z.object({ strengths: z.array(z.string()).min(3).max(5), weaknesses: z.array(z.string()).min(3).max(5), opportunities: z.array(z.string()).min(3).max(5), threats: z.array(z.string()).min(3).max(5) });
 const riskMatrixSchema = z.array(z.object({ type: z.enum(["Career", "Financial", "Learning", "Market", "Personal"]), probability: z.number().min(0).max(100), impact: z.number().min(0).max(100), mitigation: z.string() })).length(5);
+const marketIntelligenceSchema = z.object({
+  hiringDemand: z.enum(["Low", "Medium", "High"]), entryBarrier: z.enum(["Low", "Medium", "High"]),
+  salaryGrowth: z.enum(["Low", "Medium", "High"]), competitionLevel: z.enum(["Low", "Medium", "High"]),
+  automationRisk: z.enum(["Low", "Medium", "High"]), locationAdvantage: z.string()
+});
+const roadmapSchema = z.array(z.object({
+  period: z.enum(["Week 1-2", "Week 3-4", "Month 2", "Month 3", "Month 4-6"]), skillFocus: z.string(),
+  projectTask: z.string(), proofOfWork: z.string(), evaluationCheckpoint: z.string()
+})).length(5);
 
 const analysisSchema = z.object({
   bestCaseFuture: z.string(),
@@ -69,7 +78,8 @@ const careerReplaySchema = z.object({
       recommendation: z.string(),
       scorecard: scorecardSchema,
       swot: swotSchema,
-      riskMatrix: riskMatrixSchema
+      riskMatrix: riskMatrixSchema,
+      marketIntelligence: marketIntelligenceSchema
     })
   ).min(1),
   finalRecommendation: z.string(),
@@ -81,7 +91,7 @@ const futureSimulationSchema = z.object({
     name: z.string(), salaryAfterOneYear: z.string(), salaryAfterThreeYears: z.string(), skillsRequired: z.array(z.string()).min(3),
     successProbability: z.number().min(0).max(100), hiringDifficulty: z.enum(["Low", "Medium", "High"]), timeInvestment: z.string(),
     financialImpact: z.string(), opportunityCost: z.string(), careerImpact: z.string(), riskLevel: z.enum(["Low", "Medium", "High"]),
-    finalOutlook: z.string(), scorecard: scorecardSchema, swot: swotSchema, riskMatrix: riskMatrixSchema
+    finalOutlook: z.string(), scorecard: scorecardSchema, swot: swotSchema, riskMatrix: riskMatrixSchema, marketIntelligence: marketIntelligenceSchema
   })).min(2).max(4),
   bestScenario: z.string(), reasoning: z.array(z.string()).length(5)
 });
@@ -90,7 +100,9 @@ const recruiterViewSchema = z.object({
   readinessScore: z.number().min(0).max(100), missingSkills: z.array(z.string()).min(3), missingProjects: z.array(z.string()).min(2),
   resumeGaps: z.array(z.string()).min(2), interviewWeaknesses: z.array(z.string()).min(2),
   hiringProbability: z.object({ threeMonths: z.number().min(0).max(100), sixMonths: z.number().min(0).max(100), twelveMonths: z.number().min(0).max(100) }),
-  recruiterVerdict: z.string(), improvementPlan: z.array(z.string()).min(4)
+  recruiterVerdict: z.string(),
+  improvementPlan: z.array(z.object({ action: z.string(), impact: z.enum(["High Impact", "Medium Impact", "Low Impact"]) })).length(5),
+  personalizedRoadmap: roadmapSchema
 });
 
 const apiKey = process.env.GEMINI_API_KEY;
@@ -203,11 +215,14 @@ paths, finalRecommendation, whyRecommendation.
 
 Each item in paths must contain:
 path, careerFitScore, jobReadinessScore, growthPotential, salaryPotential, learningCurve, timeRequired,
-riskLevel, skillRoadmap, plan30, plan90, plan180, recommendation, scorecard, swot, riskMatrix.
+riskLevel, skillRoadmap, plan30, plan90, plan180, recommendation, scorecard, swot, riskMatrix, marketIntelligence.
 
 scorecard must contain marketDemand, learningCurve, risk, salaryPotential, competition, stability, growthPotential, jobReadiness, overallScore as 0-100 numbers.
 swot must contain 3-5 strengths, weaknesses, opportunities, and threats. riskMatrix must contain Career, Financial, Learning, Market, Personal risks with probability, impact, mitigation.
 The root whyRecommendation must contain exactly five sharp reasons grounded in the user's background, scores, market, risk, time, and opportunity cost.
+marketIntelligence must contain hiringDemand, entryBarrier, salaryGrowth, competitionLevel, automationRisk as Low/Medium/High plus a specific locationAdvantage. These are calibrated estimates, not live data.
+
+Every section must add distinct information. Do not repeat scenario text inside SWOT, risk mitigations, or recommendation reasons. No filler or motivational language.
 
 Use realistic Indian fresher context, skills, timelines, interview readiness, opportunity cost, and risk.
 Scores must be 0-100. riskLevel must be Low, Medium, or High.
@@ -217,7 +232,7 @@ Be specific, practical, and avoid generic motivational wording.
 
     const result = await model.generateContent({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.7, maxOutputTokens: 2048 }
+      generationConfig: { responseMimeType: "application/json", temperature: 0.7, maxOutputTokens: 4096 }
     });
     const parsed = careerReplaySchema.parse(JSON.parse(result.response.text()));
 
@@ -236,7 +251,7 @@ export async function simulateFutures(scenarios: string[], profile = ""): Promis
   if (!model) return createMockFutureSimulation(scenarios, profile);
   try {
     const prompt = `You are LifeReplay AI, an Indian career outcome simulation and management consulting engine. Compare future paths as quantified scenarios, not generic advice. Profile: "${profile || "No profile supplied"}". Scenarios: ${scenarios.join(", ")}.
-Return JSON with scenarios and bestScenario and reasoning. Preserve each scenario name. Each scenario requires salaryAfterOneYear, salaryAfterThreeYears, skillsRequired, successProbability, hiringDifficulty, timeInvestment, financialImpact, opportunityCost, careerImpact, riskLevel, finalOutlook, scorecard, swot, riskMatrix. scorecard has nine 0-100 fields: marketDemand, learningCurve, risk, salaryPotential, competition, stability, growthPotential, jobReadiness, overallScore. swot has 3-5 items per quadrant. riskMatrix has exactly Career, Financial, Learning, Market, Personal entries with probability, impact, mitigation. reasoning must contain exactly five specific reasons for the winner.`;
+Return JSON with scenarios and bestScenario and reasoning. Preserve each scenario name. Each scenario requires salaryAfterOneYear, salaryAfterThreeYears, skillsRequired, successProbability, hiringDifficulty, timeInvestment, financialImpact, opportunityCost, careerImpact, riskLevel, finalOutlook, scorecard, swot, riskMatrix, marketIntelligence. scorecard has nine 0-100 fields: marketDemand, learningCurve, risk, salaryPotential, competition, stability, growthPotential, jobReadiness, overallScore. swot has 3-5 distinct items per quadrant. riskMatrix has exactly Career, Financial, Learning, Market, Personal entries with probability, impact, mitigation. marketIntelligence contains hiringDemand, entryBarrier, salaryGrowth, competitionLevel, automationRisk as Low/Medium/High and a locationAdvantage. reasoning must contain exactly five specific reasons for the winner. No filler, motivational fluff, or repeated information across sections.`;
     const result = await model.generateContent({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 4096 } });
     const parsed = futureSimulationSchema.parse(JSON.parse(result.response.text()));
     return { id: nanoid(), createdAt: new Date().toISOString(), ...parsed };
@@ -249,8 +264,8 @@ Return JSON with scenarios and bestScenario and reasoning. Preserve each scenari
 export async function generateRecruiterView(targetRole: string, profile: string): Promise<RecruiterViewResult> {
   if (!model) return createMockRecruiterView(targetRole, profile);
   try {
-    const prompt = `You are a senior Indian technology recruiter assessing a candidate for ${targetRole}. Analyze only evidence in this profile: "${profile}". Return structured JSON with readinessScore, missingSkills, missingProjects, resumeGaps, interviewWeaknesses, hiringProbability {threeMonths, sixMonths, twelveMonths}, recruiterVerdict, improvementPlan. Be candid, specific, and calibrated to 2025-2026 fresher hiring in Bengaluru, Hyderabad, and Pune. Never use motivational filler.`;
-    const result = await model.generateContent({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.5, maxOutputTokens: 2048 } });
+    const prompt = `You are a senior Indian technology recruiter assessing a candidate for ${targetRole}. Analyze only evidence in this profile: "${profile}". Return structured JSON with readinessScore, missingSkills, missingProjects, resumeGaps, interviewWeaknesses, hiringProbability {threeMonths, sixMonths, twelveMonths}, recruiterVerdict, improvementPlan, personalizedRoadmap. improvementPlan must contain exactly five ranked objects with action and impact (High Impact, Medium Impact, or Low Impact). personalizedRoadmap must contain exactly Week 1-2, Week 3-4, Month 2, Month 3, Month 4-6; each step has skillFocus, projectTask, proofOfWork, evaluationCheckpoint specific to the profile and target role. Be candid and calibrated to 2025-2026 fresher hiring in Bengaluru, Hyderabad, and Pune. No filler, motivational fluff, repeated advice, or unsupported profile claims.`;
+    const result = await model.generateContent({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.5, maxOutputTokens: 3072 } });
     const parsed = recruiterViewSchema.parse(JSON.parse(result.response.text()));
     return { id: nanoid(), createdAt: new Date().toISOString(), targetRole, ...parsed };
   } catch (error) {

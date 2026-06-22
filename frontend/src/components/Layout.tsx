@@ -7,7 +7,7 @@ const navItems = [
   { href: "/analyze", label: "Analyze", icon: BrainCircuit },
   { href: "/career-replay", label: "CareerReplay", icon: GraduationCap },
   { href: "/compare", label: "Compare", icon: GitCompare },
-  { href: "/future-simulation", label: "Future Simulation", icon: Telescope },
+  { href: "/future-simulation", label: "Career Battle", icon: Telescope },
   { href: "/recruiter-view", label: "Recruiter View", icon: ScanSearch },
   { href: "/dashboard", label: "Dashboard", icon: Gauge },
   { href: "/history", label: "History", icon: History }

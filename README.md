@@ -4,7 +4,7 @@
 
 Replay your future before making life-changing career decisions.
 
-LifeReplay AI is not a chatbot. It is a Future Outcome Simulator, Career Decision Scorecard, Recruiter Readiness Analyzer, and consulting-style Decision Report Generator for students, freshers, career switchers, and young professionals.
+LifeReplay AI is not a chatbot. It is a Career Battle Simulator, Career Decision Scorecard, Recruiter Intelligence Engine, and consulting-style Decision Report Generator for students, freshers, career switchers, and young professionals.
 
 ## Team
 
@@ -26,9 +26,12 @@ LifeReplay AI combines Google Gemini with strict structured-output validation an
 
 - Streaming Decision Analyzer with live simulation status
 - CareerReplay for preset or custom career paths
-- Multi-scenario Future Outcome Simulation with salary, success probability, opportunity cost, SWOT, and risk matrices
-- Recruiter View with shortlist readiness, evidence gaps, interview weaknesses, and 3/6/12-month hiring probabilities
+- Career Battle Simulator with salary, success probability, opportunity cost, SWOT, risk matrices, and a five-reason winner verdict
+- Recruiter Intelligence Engine with shortlist readiness, impact-ranked improvements, evidence gaps, interview weaknesses, and 3/6/12-month hiring probabilities
 - Nine-metric Decision Scorecards across CareerReplay and simulated futures
+- Strongest/weakest score signals and compact battle comparison table
+- AI-calibrated Market Intelligence for demand, entry barriers, salary growth, competition, automation risk, and location advantage
+- Personalized Week 1-2 through Month 4-6 recruiter roadmap with proof-of-work checkpoints
 - Exactly five evidence-based reasons behind major recommendations
 - Resume context from `.txt` and `.pdf` files using on-demand PDF.js
 - Option comparison with persisted dashboard history
@@ -127,13 +130,21 @@ The frontend is served by Nginx on port `5173`; the backend runs on port `5000`;
 
 CareerReplay scores fit, job readiness, growth, salary potential, learning curve, time investment, and risk. It produces skill roadmaps and 30/90/180-day plans for six presets or any custom path such as Civil Services or UX Designer. Resume text can personalize the analysis.
 
-## Future Outcome Simulation
+## Career Battle Simulator
 
-Future Simulation compares two to four scenarios in one intelligence view. Each future includes 1-year and 3-year salary ranges, success probability, hiring difficulty, time and financial impact, opportunity cost, career impact, a nine-metric scorecard, SWOT analysis, and a five-part risk matrix.
+Career Battle compares two to four custom scenarios in one intelligence view. Each future includes 1-year and 3-year salary ranges, success probability, hiring difficulty, time and financial impact, opportunity cost, career impact, a nine-metric scorecard, SWOT analysis, a five-part risk matrix, and a clear winner backed by exactly five reasons.
 
 ## Recruiter View
 
-Recruiter View evaluates a profile against a target role as a recruiter would. It measures readiness, missing skills and projects, resume gaps, interview weaknesses, and hiring probability over 3, 6, and 12 months, then produces a shortlist-focused improvement plan.
+The Recruiter Intelligence Engine evaluates a profile against a target role as a recruiter would. It measures readiness, missing skills and projects, resume gaps, interview weaknesses, and hiring probability over 3, 6, and 12 months, then produces five impact-ranked improvements and a personalized proof-of-work roadmap.
+
+## Market Intelligence Panel
+
+CareerReplay and Career Battle include hiring demand, entry barrier, salary growth, competition, automation risk, and location advantage. These values are explicitly labeled **AI-calibrated market estimates** and are not presented as live labor-market data.
+
+## Premium Career Intelligence PDF
+
+The PDF export uses consulting-style section hierarchy, visual score bars, an executive scorecard, SWOT analysis, a five-category risk matrix, timeline, recommendation evidence, and action plan.
 
 ## Decision Scorecard, SWOT, and Risk Matrix
 
