@@ -7,9 +7,11 @@ build/
 *.log
 backend/data/history.json
 backend/data/comparisons.json
+backend/data/career-replays.json
 backend/data/future-simulations.json
 backend/data/recruiter-views.json
 coverage/
+tmp/
 .vite/
 *.tsbuildinfo
 frontend/vite.config.js

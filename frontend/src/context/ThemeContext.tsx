@@ -3,18 +3,28 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 type Theme = "light" | "dark";
 const ThemeContext = createContext<{ theme: Theme; toggleTheme: () => void } | null>(null);
 
-function initialTheme(): Theme {
-  const saved = window.localStorage.getItem("lifereplay-theme");
+export function resolveInitialTheme(saved: string | null, prefersDark: boolean): Theme {
   if (saved === "light" || saved === "dark") return saved;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return prefersDark ? "dark" : "light";
+}
+
+function initialTheme(): Theme {
+  return resolveInitialTheme(
+    window.localStorage.getItem("lifereplay-theme"),
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+}
+
+export function persistTheme(theme: Theme, root: HTMLElement, storage: Pick<Storage, "setItem">) {
+  root.classList.toggle("dark", theme === "dark");
+  root.style.colorScheme = theme;
+  storage.setItem("lifereplay-theme", theme);
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<Theme>(initialTheme);
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark");
-    document.documentElement.style.colorScheme = theme;
-    window.localStorage.setItem("lifereplay-theme", theme);
+    persistTheme(theme, document.documentElement, window.localStorage);
   }, [theme]);
   return <ThemeContext.Provider value={{ theme, toggleTheme: () => setTheme((value) => value === "dark" ? "light" : "dark") }}>{children}</ThemeContext.Provider>;
 }

@@ -20,7 +20,7 @@ import express from "express";
 import { z } from "zod";
 
 const { analyzeDecision, compareOptions, generateRecruiterView, replayCareers, simulateFutures } = await import("./aiService.js");
-import { readComparisons, readFutureSimulations, readHistory, readRecruiterViews, saveAnalysis, saveComparison, saveFutureSimulation, saveRecruiterView } from "./storage.js";
+import { readCareerReplays, readComparisons, readFutureSimulations, readHistory, readRecruiterViews, saveAnalysis, saveCareerReplay, saveComparison, saveFutureSimulation, saveRecruiterView } from "./storage.js";
 import type { DashboardMetrics } from "./types.js";
 
 const app = express();
@@ -45,7 +45,7 @@ setInterval(() => {
 }, 5 * 60 * 1000).unref();
 const aiLimiter: express.RequestHandler = (req, res, next) => {
   const now = Date.now();
-  const key = req.ip ?? "unknown";
+  const key = `${req.ip ?? "unknown"}:${req.path}`;
   const current = requestWindows.get(key);
   const window = !current || current.resetAt <= now
     ? { count: 0, resetAt: now + 15 * 60 * 1000 }
@@ -61,7 +61,6 @@ const aiLimiter: express.RequestHandler = (req, res, next) => {
   return next();
 };
 
-app.use("/api/analyze", aiLimiter);
 app.use("/api/compare", aiLimiter);
 app.use("/api/career-replay", aiLimiter);
 app.use("/api/future-simulation", aiLimiter);
@@ -102,7 +101,7 @@ app.get("/health", (_req, res) => {
   });
 });
 
-app.post("/api/analyze", async (req, res, next) => {
+app.post("/api/analyze", aiLimiter, async (req, res, next) => {
   try {
     const { decision } = decisionSchema.parse(req.body);
     const analysis = await analyzeDecision(decision);
@@ -113,7 +112,7 @@ app.post("/api/analyze", async (req, res, next) => {
   }
 });
 
-app.post("/api/analyze/stream", async (req, res) => {
+app.post("/api/analyze/stream", aiLimiter, async (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache, no-transform");
   res.setHeader("Connection", "keep-alive");
@@ -169,6 +168,7 @@ app.post("/api/career-replay", async (req, res, next) => {
   try {
     const { paths, background } = careerReplaySchema.parse(req.body);
     const replay = await replayCareers(paths, background);
+    await saveCareerReplay(replay);
     res.status(200).json(replay);
   } catch (error) {
     next(error);
@@ -201,10 +201,19 @@ app.get("/api/history", async (_req, res, next) => {
   }
 });
 
+app.get("/api/career-replays", async (_req, res, next) => {
+  try {
+    res.json(await readCareerReplays());
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.get("/api/dashboard", async (_req, res, next) => {
   try {
     const history = await readHistory();
     const comparisons = await readComparisons();
+    const careerReplays = await readCareerReplays();
     const futureSimulations = await readFutureSimulations();
     const recruiterViews = await readRecruiterViews();
     const totalDecisions = history.length;
@@ -224,19 +233,28 @@ app.get("/api/dashboard", async (_req, res, next) => {
     const mostCommonRiskCategory =
       Object.entries(riskDistribution).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "Not enough data";
 
+    const replayPaths = careerReplays.flatMap((replay) => replay.paths);
+    const recommendedPaths = [
+      ...futureSimulations.map((item) => item.bestScenario),
+      ...careerReplays.map((replay) => [...replay.paths].sort((a, b) => b.careerFitScore - a.careerFitScore)[0]?.path).filter((path): path is string => Boolean(path))
+    ];
+
     const dashboard: DashboardMetrics = {
       totalDecisions,
       totalComparisons: comparisons.length,
+      totalCareerReplays: careerReplays.length,
       totalFutureSimulations: futureSimulations.length,
       totalRecruiterAssessments: recruiterViews.length,
+      averageCareerFitScore: replayPaths.length ? Math.round(replayPaths.reduce((sum, item) => sum + item.careerFitScore, 0) / replayPaths.length) : 0,
       averageReadinessScore: recruiterViews.length ? Math.round(recruiterViews.reduce((sum, item) => sum + item.readinessScore, 0) / recruiterViews.length) : 0,
       averageSuccessProbability: futureSimulations.length ? Math.round(futureSimulations.reduce((sum, item) => sum + item.scenarios.reduce((scenarioSum, scenario) => scenarioSum + scenario.successProbability, 0) / item.scenarios.length, 0) / futureSimulations.length) : 0,
-      mostRecommendedPath: Object.entries(futureSimulations.reduce<Record<string, number>>((acc, item) => { acc[item.bestScenario] = (acc[item.bestScenario] ?? 0) + 1; return acc; }, {})).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "Not enough data",
+      mostRecommendedPath: Object.entries(recommendedPaths.reduce<Record<string, number>>((acc, path) => { acc[path] = (acc[path] ?? 0) + 1; return acc; }, {})).sort((a, b) => b[1] - a[1])[0]?.[0] ?? "Not enough data",
       averageConfidenceScore,
       averageOpportunityScore,
       mostCommonRiskCategory: mostCommonRiskCategory as DashboardMetrics["mostCommonRiskCategory"],
       recentAnalyses: history.slice(0, 5),
       recentComparisons: comparisons.slice(0, 3),
+      recentCareerReplays: careerReplays.slice(0, 3),
       riskDistribution,
       confidenceTrend: history.slice(0, 8).reverse().map((item) => item.confidenceScore),
       opportunityTrend: history.slice(0, 8).reverse().map((item) => item.opportunityScore)
@@ -260,6 +278,10 @@ app.use((error: unknown, _req: express.Request, res: express.Response, _next: ex
   return res.status(500).json({ message: "Something went wrong. Please try again." });
 });
 
-app.listen(port, () => {
-  console.log(`[LifeReplay AI] Backend running on http://localhost:${port}`);
-});
+export { app };
+
+if (process.env.NODE_ENV !== "test") {
+  app.listen(port, () => {
+    console.log(`[LifeReplay AI] Backend running on http://localhost:${port}`);
+  });
+}

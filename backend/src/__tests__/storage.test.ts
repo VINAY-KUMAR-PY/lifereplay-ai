@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createMockCareerReplay } from "../mockAi.js";
 import type { AnalysisResult } from "../types.js";
 
 describe("Storage resilience patterns", () => {
@@ -137,5 +138,19 @@ describe("saveAnalysis / readHistory actual exports", () => {
     const history = await readHistory();
     expect(history).toHaveLength(20);
     expect(new Set(history.map((item) => item.id)).size).toBe(20);
+  });
+
+  it("persists CareerReplay results across a storage module reload", async () => {
+    const replay = createMockCareerReplay(["AI Engineer", "Higher Studies"], "CSE fresher");
+    const { saveCareerReplay } = await import("../storage.js");
+    await saveCareerReplay(replay);
+
+    vi.resetModules();
+    const { readCareerReplays } = await import("../storage.js");
+    const saved = await readCareerReplays();
+
+    expect(saved).toHaveLength(1);
+    expect(saved[0].id).toBe(replay.id);
+    expect(saved[0].paths.map((path) => path.path)).toEqual(["AI Engineer", "Higher Studies"]);
   });
 });

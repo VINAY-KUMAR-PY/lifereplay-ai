@@ -108,8 +108,10 @@ export interface RecruiterViewResult {
 export interface DashboardMetrics {
   totalDecisions: number;
   totalComparisons: number;
+  totalCareerReplays: number;
   totalFutureSimulations: number;
   totalRecruiterAssessments: number;
+  averageCareerFitScore: number;
   averageReadinessScore: number;
   averageSuccessProbability: number;
   mostRecommendedPath: string;
@@ -118,6 +120,7 @@ export interface DashboardMetrics {
   mostCommonRiskCategory: string;
   recentAnalyses: AnalysisResult[];
   recentComparisons: ComparisonResult[];
+  recentCareerReplays: CareerReplayResult[];
   riskDistribution: Record<string, number>;
   confidenceTrend: number[];
   opportunityTrend: number[];

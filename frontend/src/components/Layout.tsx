@@ -21,8 +21,8 @@ export function Layout() {
   const { demoMode, loadDemoData, clearDemoData } = useDemoData();
 
   return (
-    <div className="min-h-screen bg-[#f7f8fb] text-slate-950">
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur">
+    <div className="min-h-screen bg-[#f7f8fb] text-slate-950 dark:bg-slate-950 dark:text-slate-50">
+      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur dark:border-slate-800 dark:bg-slate-950/90">
         <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <NavLink to="/" className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-md bg-slate-950 text-white">
@@ -53,13 +53,13 @@ export function Layout() {
 
           <div className="flex items-center gap-2">
             <button type="button" onClick={demoMode ? clearDemoData : loadDemoData} className={`hidden min-h-10 items-center gap-2 rounded-md border px-3 text-xs font-black transition sm:inline-flex ${demoMode ? "border-teal-300 bg-teal-50 text-teal-800" : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}><Database size={15} />{demoMode ? "Demo Data Active" : "Load Demo Data"}</button>
-            <button type="button" onClick={toggleTheme} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"} className="grid h-10 w-10 place-items-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100">{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</button>
+            <button type="button" onClick={toggleTheme} aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"} title={theme === "dark" ? "Light mode" : "Dark mode"} className="grid h-10 w-10 place-items-center rounded-md border border-slate-200 bg-white text-slate-700 transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">{theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}</button>
             <button type="button" aria-label="Toggle menu" className="flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 2xl:hidden" onClick={() => setOpen((value) => !value)}>{open ? <X size={20} /> : <Menu size={20} />}</button>
           </div>
         </div>
 
         {open && (
-          <nav className="border-t border-slate-200 bg-white px-4 py-3 2xl:hidden">
+          <nav className="border-t border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950 2xl:hidden">
             <div className="grid gap-2">
               <button type="button" onClick={() => { demoMode ? clearDemoData() : loadDemoData(); setOpen(false); }} className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold sm:hidden ${demoMode ? "bg-teal-50 text-teal-800" : "text-slate-600"}`}><Database size={16} />{demoMode ? "Clear Demo Data" : "Load Demo Data"}</button>
               {navItems.map((item) => (
@@ -85,7 +85,7 @@ export function Layout() {
       <main>
         <Outlet />
       </main>
-      <footer className="border-t border-slate-200 bg-white"><div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p className="font-bold text-slate-700">LifeReplay AI — Career Decision Intelligence Platform</p><p>AI-calibrated insights with transparent mock fallback.</p></div></footer>
+      <footer className="border-t border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950"><div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"><p className="font-bold text-slate-700 dark:text-slate-200">LifeReplay AI — Career Decision Intelligence Platform</p><p>AI-calibrated insights with transparent mock fallback.</p></div></footer>
     </div>
   );
 }

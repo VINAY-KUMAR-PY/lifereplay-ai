@@ -1,7 +1,91 @@
-import jsPDF from "jspdf";
-import type { AnalysisResult, FutureSimulationResult, RecruiterViewResult } from "../types";
+import { jsPDF } from "jspdf";
+import type { AnalysisResult, FutureSimulationResult, RecruiterViewResult, RiskMatrixItem } from "../types";
 
-export function downloadDecisionReport(result: AnalysisResult) {
+const clampScore = (value: number) => Math.max(8, Math.min(95, Math.round(value)));
+
+function contentOffset(value: string) {
+  let hash = 0;
+  for (const character of value) hash = (hash * 31 + character.charCodeAt(0)) >>> 0;
+  return hash % 15 - 7;
+}
+
+export function createDecisionReportModel(result: AnalysisResult) {
+  const severity = { Low: 25, Medium: 55, High: 85 } as const;
+  const timelinePressure = result.timeline.length
+    ? result.timeline.reduce((sum, item) => sum + severity[item.riskLevel], 0) / result.timeline.length
+    : 50;
+  const uncertainty = 100 - result.confidenceScore;
+  const opportunityPressure = 100 - result.opportunityScore;
+  const dominantBonus = (type: RiskMatrixItem["type"]) => result.dominantRiskCategory === type ? 12 : 0;
+  const riskSeed = (type: RiskMatrixItem["type"], content: string[]) => contentOffset([result.decision, type, ...content].join("|"));
+  const actionFallback = result.recommendedNextSteps[0] ?? result.timeline[0]?.milestone ?? result.summary;
+
+  const matrixInputs: Array<{
+    type: RiskMatrixItem["type"];
+    risks: string[];
+    probability: number;
+    impact: number;
+    mitigation: string | undefined;
+  }> = [
+    {
+      type: "Career",
+      risks: result.careerRisks,
+      probability: uncertainty * 0.45 + timelinePressure * 0.2 + result.careerRisks.length * 11,
+      impact: opportunityPressure * 0.3 + timelinePressure * 0.35 + result.careerRisks.length * 13,
+      mitigation: result.actionPlan.immediate[0] ?? result.recommendedNextSteps[0]
+    },
+    {
+      type: "Financial",
+      risks: result.financialRisks,
+      probability: uncertainty * 0.35 + opportunityPressure * 0.25 + result.financialRisks.length * 13,
+      impact: uncertainty * 0.2 + opportunityPressure * 0.3 + result.financialRisks.length * 16,
+      mitigation: result.actionPlan.thirtyDay[0] ?? result.recommendedNextSteps[1]
+    },
+    {
+      type: "Learning",
+      risks: result.careerRisks,
+      probability: uncertainty * 0.55 + timelinePressure * 0.25 + result.recommendedNextSteps.length * 4,
+      impact: uncertainty * 0.35 + timelinePressure * 0.3 + result.actionPlan.ninetyDay.length * 8,
+      mitigation: result.actionPlan.ninetyDay[0] ?? result.recommendedNextSteps[0]
+    },
+    {
+      type: "Market",
+      risks: result.careerRisks,
+      probability: opportunityPressure * 0.55 + uncertainty * 0.2 + result.careerRisks.length * 8,
+      impact: opportunityPressure * 0.5 + timelinePressure * 0.2 + result.careerRisks.length * 10,
+      mitigation: result.recommendedNextSteps[1] ?? result.actionPlan.longTerm[0]
+    },
+    {
+      type: "Personal",
+      risks: result.personalRisks,
+      probability: uncertainty * 0.4 + timelinePressure * 0.2 + result.personalRisks.length * 12,
+      impact: uncertainty * 0.25 + timelinePressure * 0.3 + result.personalRisks.length * 14,
+      mitigation: result.actionPlan.longTerm[0] ?? result.recommendedNextSteps[2]
+    }
+  ];
+
+  const riskMatrix: RiskMatrixItem[] = matrixInputs.map((item) => {
+    const signal = riskSeed(item.type, item.risks);
+    return {
+      type: item.type,
+      probability: clampScore(item.probability + dominantBonus(item.type) + signal),
+      impact: clampScore(item.impact + dominantBonus(item.type) + signal / 2),
+      mitigation: item.mitigation ?? actionFallback
+    };
+  });
+
+  return {
+    riskMatrix,
+    futureSections: [
+      { title: "Best Case Future", text: result.bestCaseFuture },
+      { title: "Most Likely Future", text: result.mostLikelyFuture },
+      { title: "Worst Case Future", text: result.worstCaseFuture }
+    ]
+  };
+}
+
+export function createDecisionReportDocument(result: AnalysisResult) {
+  const reportModel = createDecisionReportModel(result);
   const doc = new jsPDF();
   const margin = 18;
   const pageWidth = 210;
@@ -84,27 +168,15 @@ export function downloadDecisionReport(result: AnalysisResult) {
     ensureSpace(8); doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(15, 23, 42); doc.text(label as string, margin, y); y += 5; list(items as string[]);
   });
 
-  sectionHeader("Strategic Summary");
-  const strategicSections: [string, string[]][] = [
-    ["Upside (Best case)", [result.bestCaseFuture]],
-    ["Downside (Worst case)", [result.worstCaseFuture]],
-    ["Most likely outcome", [result.mostLikelyFuture]],
-    ["Career risks to mitigate", result.careerRisks],
-    ["Financial risks to manage", result.financialRisks],
-    ["Recommended immediate actions", result.recommendedNextSteps.slice(0, 3)]
-  ];
-  for (const [label, items] of strategicSections) {
-    ensureSpace(8);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
-    doc.text(label, margin, y);
-    y += 5;
-    list(items);
-  }
+  sectionHeader("Executive Summary");
+  paragraph(result.summary);
+  reportModel.futureSections.forEach((future) => {
+    sectionHeader(future.title);
+    paragraph(future.text);
+  });
 
   sectionHeader("Risk Matrix");
-  [["Career", 68, 74, result.careerRisks[0]], ["Financial", 56, 70, result.financialRisks[0]], ["Learning", 52, 58, "Use weekly milestones and mentor feedback."], ["Market", 62, 72, "Review live job descriptions and demand monthly."], ["Personal", 48, 55, result.personalRisks[0]]].forEach(([type, probability, impact, mitigation]) => paragraph(`${type}: Probability ${probability}% | Impact ${impact}% | Mitigation: ${mitigation}`));
+  reportModel.riskMatrix.forEach(({ type, probability, impact, mitigation }) => paragraph(`${type}: Probability ${probability}% | Impact ${impact}% | Mitigation: ${mitigation}`));
 
   sectionHeader("Decision Timeline");
   result.timeline.forEach((item) => {
@@ -125,7 +197,12 @@ export function downloadDecisionReport(result: AnalysisResult) {
   const pages = doc.getNumberOfPages();
   for (let page = 1; page <= pages; page += 1) { doc.setPage(page); doc.setFontSize(8); doc.setTextColor(148, 163, 184); doc.text(`LifeReplay AI | Page ${page} of ${pages}`, margin, 292); }
   const safeName = result.decision.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
-  doc.save(`lifereplay-report-${safeName || "analysis"}.pdf`);
+  return { doc, filename: `lifereplay-report-${safeName || "analysis"}.pdf` };
+}
+
+export function downloadDecisionReport(result: AnalysisResult) {
+  const { doc, filename } = createDecisionReportDocument(result);
+  doc.save(filename);
 }
 
 function downloadStructuredReport(title: string, subtitle: string, sections: Array<{ title: string; lines: string[] }>, filename: string) {

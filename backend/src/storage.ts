@@ -2,13 +2,14 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import lockfile from "proper-lockfile";
-import type { AnalysisResult, ComparisonResult, FutureSimulationResult, RecruiterViewResult } from "./types.js";
+import type { AnalysisResult, CareerReplayResult, ComparisonResult, FutureSimulationResult, RecruiterViewResult } from "./types.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dataDir = process.env.DATA_DIR ?? path.resolve(__dirname, "../data");
 const historyFile = path.join(dataDir, "history.json");
 const comparisonsFile = path.join(dataDir, "comparisons.json");
+const careerReplaysFile = path.join(dataDir, "career-replays.json");
 const simulationsFile = path.join(dataDir, "future-simulations.json");
 const recruiterViewsFile = path.join(dataDir, "recruiter-views.json");
 
@@ -57,6 +58,8 @@ export const readHistory = () => readCollection<AnalysisResult>(historyFile);
 export const readComparisons = () => readCollection<ComparisonResult>(comparisonsFile);
 export const saveAnalysis = (analysis: AnalysisResult) => saveCollectionItem(historyFile, analysis, 100);
 export const saveComparison = (comparison: ComparisonResult) => saveCollectionItem(comparisonsFile, comparison, 50);
+export const readCareerReplays = () => readCollection<CareerReplayResult>(careerReplaysFile);
+export const saveCareerReplay = (replay: CareerReplayResult) => saveCollectionItem(careerReplaysFile, replay, 50);
 
 export const readFutureSimulations = () => readCollection<FutureSimulationResult>(simulationsFile);
 export const saveFutureSimulation = (simulation: FutureSimulationResult) => saveCollectionItem(simulationsFile, simulation, 50);

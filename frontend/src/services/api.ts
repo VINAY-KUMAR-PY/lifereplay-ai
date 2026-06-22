@@ -44,6 +44,10 @@ export function getHistory() {
   return request<AnalysisResult[]>("/api/history");
 }
 
+export function getCareerReplays() {
+  return request<CareerReplayResult[]>("/api/career-replays");
+}
+
 export function getDashboard() {
   return request<DashboardMetrics>("/api/dashboard");
 }

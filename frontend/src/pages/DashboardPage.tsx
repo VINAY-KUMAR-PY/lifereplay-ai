@@ -1,4 +1,4 @@
-import { Activity, Award, BarChart3, Gauge, GitCompare, ScanSearch, ShieldAlert, Sparkles, Telescope } from "lucide-react";
+import { Activity, Award, BarChart3, Gauge, GitCompare, GraduationCap, ScanSearch, ShieldAlert, Sparkles, Telescope } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Bar, BarChart, CartesianGrid, Cell, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
@@ -43,10 +43,11 @@ export default function DashboardPage() {
 
       {dashboard && (
         <section className="mt-8 space-y-6">
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
             {[
               { icon: Activity, label: "Total decisions", value: dashboard.totalDecisions },
               { icon: GitCompare, label: "Total comparisons", value: dashboard.totalComparisons },
+              { icon: GraduationCap, label: "Career replays", value: dashboard.totalCareerReplays },
               { icon: Gauge, label: "Average confidence", value: `${dashboard.averageConfidenceScore}%` },
               { icon: Sparkles, label: "Average opportunity", value: `${dashboard.averageOpportunityScore}%` },
               { icon: ShieldAlert, label: "Most common risk", value: dashboard.mostCommonRiskCategory }
@@ -64,10 +65,11 @@ export default function DashboardPage() {
             ))}
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
             {[
               { icon: Telescope, label: "Future simulations", value: dashboard.totalFutureSimulations },
               { icon: ScanSearch, label: "Recruiter assessments", value: dashboard.totalRecruiterAssessments },
+              { icon: GraduationCap, label: "Average career fit", value: `${dashboard.averageCareerFitScore}%` },
               { icon: Gauge, label: "Average readiness", value: `${dashboard.averageReadinessScore}%` },
               { icon: Sparkles, label: "Average success", value: `${dashboard.averageSuccessProbability}%` },
               { icon: Award, label: "Most recommended", value: dashboard.mostRecommendedPath }
@@ -145,6 +147,11 @@ export default function DashboardPage() {
           <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <h2 className="text-lg font-black text-slate-950">Recent comparisons</h2>
             {dashboard.recentComparisons.length ? <div className="mt-4 grid gap-3 md:grid-cols-3">{dashboard.recentComparisons.map((comparison) => <div key={comparison.id} className="rounded-md border border-slate-100 bg-slate-50 p-4"><p className="text-xs font-black uppercase tracking-wide text-teal-700">{comparison.betterOption}</p><p className="mt-2 font-black text-slate-950">{comparison.optionA} vs {comparison.optionB}</p><p className="mt-2 text-sm leading-6 text-slate-600">{comparison.explanation}</p></div>)}</div> : <p className="mt-3 text-sm text-slate-600">Comparisons will appear here after you compare two options.</p>}
+          </div>
+
+          <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+            <h2 className="text-lg font-black text-slate-950 dark:text-slate-50">Recent CareerReplays</h2>
+            {dashboard.recentCareerReplays.length ? <div className="mt-4 grid gap-3 md:grid-cols-3">{dashboard.recentCareerReplays.map((replay) => <div key={replay.id} className="rounded-md border border-slate-100 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-950"><p className="text-xs font-black uppercase tracking-wide text-teal-700">{replay.paths.map((path) => path.path).join(" vs ")}</p><p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">{replay.finalRecommendation}</p></div>)}</div> : <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">CareerReplay results will appear here after a career path simulation.</p>}
           </div>
         </section>
       )}
