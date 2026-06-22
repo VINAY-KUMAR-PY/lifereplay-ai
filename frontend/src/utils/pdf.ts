@@ -1,5 +1,5 @@
 import jsPDF from "jspdf";
-import type { AnalysisResult } from "../types";
+import type { AnalysisResult, FutureSimulationResult, RecruiterViewResult } from "../types";
 
 export function downloadDecisionReport(result: AnalysisResult) {
   const doc = new jsPDF();
@@ -121,4 +121,36 @@ export function downloadDecisionReport(result: AnalysisResult) {
   for (let page = 1; page <= pages; page += 1) { doc.setPage(page); doc.setFontSize(8); doc.setTextColor(148, 163, 184); doc.text(`LifeReplay AI | Page ${page} of ${pages}`, margin, 292); }
   const safeName = result.decision.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 48);
   doc.save(`lifereplay-report-${safeName || "analysis"}.pdf`);
+}
+
+function downloadStructuredReport(title: string, subtitle: string, sections: Array<{ title: string; lines: string[] }>, filename: string) {
+  const doc = new jsPDF(); const margin = 18; const width = 174; let y = 50;
+  const ensure = (height: number) => { if (y + height > 280) { doc.addPage(); y = 20; } };
+  doc.setFillColor(15, 23, 42); doc.rect(0, 0, 210, 40, "F"); doc.setFillColor(20, 184, 166); doc.rect(0, 37, 210, 3, "F");
+  doc.setTextColor(255, 255, 255); doc.setFont("helvetica", "bold"); doc.setFontSize(18); doc.text(title, margin, 16); doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.text(subtitle, margin, 25); doc.text(`Generated ${new Date().toLocaleString("en-IN")}`, margin, 33);
+  sections.forEach((section) => { ensure(18); doc.setFillColor(20, 184, 166); doc.rect(margin, y, 3, 8, "F"); doc.setTextColor(15, 23, 42); doc.setFont("helvetica", "bold"); doc.setFontSize(11); doc.text(section.title, margin + 6, y + 6); y += 14; section.lines.forEach((line) => { doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(51, 65, 85); const wrapped = doc.splitTextToSize(`- ${line}`, width); ensure(wrapped.length * 4.5 + 3); doc.text(wrapped, margin + 2, y); y += wrapped.length * 4.5 + 3; }); y += 4; });
+  const pages = doc.getNumberOfPages(); for (let page = 1; page <= pages; page += 1) { doc.setPage(page); doc.setFontSize(8); doc.setTextColor(148, 163, 184); doc.text(`LifeReplay AI | Page ${page} of ${pages}`, margin, 292); }
+  doc.save(filename);
+}
+
+export function downloadCareerBattleReport(result: FutureSimulationResult) {
+  const winner = result.scenarios.find((scenario) => scenario.name === result.bestScenario) ?? result.scenarios[0];
+  downloadStructuredReport("LifeReplay AI", "Career Battle Intelligence Report", [
+    { title: "Executive Summary", lines: [`Recommended path: ${result.bestScenario}`, `${winner.successProbability}% success probability; overall score ${winner.scorecard.overallScore}/100.`] },
+    { title: "Career Battle Summary", lines: result.scenarios.map((scenario) => `${scenario.name}: ${scenario.salaryAfterOneYear} after year one; ${scenario.salaryAfterThreeYears} after year three; ${scenario.riskLevel} risk; ${scenario.finalOutlook}`) },
+    { title: "Decision Scorecard", lines: Object.entries(winner.scorecard).map(([metric, value]) => `${metric}: ${value}/100`) },
+    { title: "SWOT Analysis", lines: [`Strengths: ${winner.swot.strengths.join("; ")}`, `Weaknesses: ${winner.swot.weaknesses.join("; ")}`, `Opportunities: ${winner.swot.opportunities.join("; ")}`, `Threats: ${winner.swot.threats.join("; ")}`] },
+    { title: "Risk Matrix", lines: winner.riskMatrix.map((risk) => `${risk.type}: probability ${risk.probability}%, impact ${risk.impact}%. ${risk.mitigation}`) },
+    { title: "Final Recommendation", lines: result.reasoning }
+  ], "lifereplay-career-battle-report.pdf");
+}
+
+export function downloadRecruiterIntelligenceReport(result: RecruiterViewResult) {
+  downloadStructuredReport("LifeReplay AI", "Recruiter Intelligence Report", [
+    { title: "Executive Summary", lines: [`Target role: ${result.targetRole}`, `Recruiter readiness: ${result.readinessScore}/100`, result.recruiterVerdict] },
+    { title: "Recruiter Assessment", lines: [`Missing skills: ${result.missingSkills.join("; ")}`, `Missing projects: ${result.missingProjects.join("; ")}`, `Resume gaps: ${result.resumeGaps.join("; ")}`, `Interview weaknesses: ${result.interviewWeaknesses.join("; ")}`] },
+    { title: "Hiring Probability", lines: [`3 months: ${result.hiringProbability.threeMonths}%`, `6 months: ${result.hiringProbability.sixMonths}%`, `12 months: ${result.hiringProbability.twelveMonths}%`] },
+    { title: "Top Improvements", lines: result.improvementPlan.map((item) => `${item.impact}: ${item.action}`) },
+    { title: "Personalized Roadmap", lines: result.personalizedRoadmap.map((step) => `${step.period} | Skill: ${step.skillFocus} | Task: ${step.projectTask} | Proof: ${step.proofOfWork} | Checkpoint: ${step.evaluationCheckpoint}`) }
+  ], "lifereplay-recruiter-intelligence-report.pdf");
 }

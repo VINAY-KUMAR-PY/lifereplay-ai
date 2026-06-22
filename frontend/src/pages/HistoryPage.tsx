@@ -5,6 +5,8 @@ import { SectionHeader } from "../components/SectionHeader";
 import { getHistory } from "../services/api";
 import type { AnalysisResult } from "../types";
 import { formatDate } from "../utils/format";
+import { useDemoData } from "../context/DemoDataContext";
+import { demoHistory } from "../data/demoData";
 
 export default function HistoryPage() {
   const [items, setItems] = useState<AnalysisResult[]>([]);
@@ -13,6 +15,7 @@ export default function HistoryPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [filterRisk, setFilterRisk] = useState("All");
+  const { demoMode } = useDemoData();
   const riskCategories = ["All", "Career", "Financial", "Personal", "Learning", "Market"];
   const filteredItems = items.filter((item) => {
     const query = search.toLowerCase();
@@ -21,6 +24,8 @@ export default function HistoryPage() {
   });
 
   useEffect(() => {
+    if (demoMode) { setItems(demoHistory); setSelected(demoHistory[0]); setLoading(false); setError(""); return; }
+    setLoading(true);
     getHistory()
       .then((history) => {
         setItems(history);
@@ -28,7 +33,7 @@ export default function HistoryPage() {
       })
       .catch((err) => setError(err instanceof Error ? err.message : "Unable to load history."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [demoMode]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -37,6 +42,7 @@ export default function HistoryPage() {
         title="Review previous decisions."
         description="Review saved career decisions, reopen reports, and compare how confidence, opportunity, and risk evolved over time."
       />
+      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800">Demo Data — these examples are not mixed with saved decisions.</div>}
 
       {loading && (
         <div className="mt-10 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-slate-600 shadow-sm">

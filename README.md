@@ -42,6 +42,9 @@ LifeReplay AI combines Google Gemini with strict structured-output validation an
 - Animated product preview on the landing page
 - Gemini JSON mode with Zod validation and reliable mock fallback
 - Docker Compose deployment configuration
+- Persistent system-aware dark/light theme with accessible header toggle
+- Explicit Load Demo Data judge showcase that stays isolated from real backend history
+- Dedicated Career Battle and Recruiter Intelligence PDF exports
 
 ## Tech Stack
 
@@ -92,6 +95,10 @@ FRONTEND_URL=http://localhost:5173
 ```
 
 Without `GEMINI_API_KEY`, the platform uses topic-aware deterministic mock intelligence.
+
+## Judge Showcase
+
+Use **Load Demo Data** in the header to populate Dashboard, History, Career Battle, Recruiter Intelligence, and CareerReplay with clearly labeled examples. Showcase state is held only in React memory, is never auto-loaded, and is never written into real backend history. The header also provides a persistent dark/light theme toggle that defaults to the operating-system preference on first visit.
 
 ## API Endpoints
 
@@ -144,7 +151,7 @@ CareerReplay and Career Battle include hiring demand, entry barrier, salary grow
 
 ## Premium Career Intelligence PDF
 
-The PDF export uses consulting-style section hierarchy, visual score bars, an executive scorecard, SWOT analysis, a five-category risk matrix, timeline, recommendation evidence, and action plan.
+The decision PDF uses consulting-style section hierarchy, visual score bars, an executive scorecard, SWOT analysis, a five-category risk matrix, timeline, recommendation evidence, and action plan. Career Battle and Recruiter Intelligence also provide dedicated reports covering scenario comparisons, recruiter readiness, impact-ranked improvements, and personalized roadmap checkpoints.
 
 ## Decision Scorecard, SWOT, and Risk Matrix
 

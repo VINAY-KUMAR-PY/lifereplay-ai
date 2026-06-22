@@ -6,6 +6,8 @@ import { DashboardSkeleton } from "../components/Skeleton";
 import { getDashboard } from "../services/api";
 import type { DashboardMetrics } from "../types";
 import { formatDate } from "../utils/format";
+import { useDemoData } from "../context/DemoDataContext";
+import { demoDashboard } from "../data/demoData";
 
 function TrendChart({ title, values, color }: { title: string; values: number[]; color: string }) {
   const data = values.length ? values : [0];
@@ -44,13 +46,16 @@ export default function DashboardPage() {
   const [dashboard, setDashboard] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { demoMode } = useDemoData();
 
   useEffect(() => {
+    if (demoMode) { setDashboard(demoDashboard); setLoading(false); setError(""); return; }
+    setLoading(true);
     getDashboard()
       .then(setDashboard)
       .catch((err) => setError(err instanceof Error ? err.message : "Unable to load dashboard."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [demoMode]);
 
   const confidence = dashboard?.averageConfidenceScore ?? 0;
   const opportunity = dashboard?.averageOpportunityScore ?? 0;
@@ -62,6 +67,7 @@ export default function DashboardPage() {
         title="Your decision intelligence cockpit."
         description="Track analyzed decisions, average confidence, risk concentration, and recent futures."
       />
+      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800">Demo Data — isolated judge showcase; real backend history is unchanged.</div>}
 
       {loading && <DashboardSkeleton />}
 

@@ -28,18 +28,23 @@ const features = [
   },
   {
     icon: BrainCircuit,
-    title: "Decision Analyzer",
-    text: "Replay best-case, worst-case, and most-likely futures with confidence, opportunity, risks, and action plans."
+    title: "Future Outcome Simulation",
+    text: "Model best-case, worst-case, and most-likely outcomes before committing time, money, or momentum."
+  },
+  {
+    icon: BarChart3,
+    title: "Market Intelligence",
+    text: "Review transparent AI-calibrated estimates for demand, barriers, competition, salary growth, and location advantage."
+  },
+  {
+    icon: Layers3,
+    title: "Decision Scorecards",
+    text: "Compare nine structured metrics with strongest, weakest, risk, readiness, and overall score signals."
   },
   {
     icon: GraduationCap,
-    title: "CareerReplay Mode",
-    text: "Compare AI Engineer, Data Scientist, Software Engineer, Government Exams, Startup Founder, and Higher Studies."
-  },
-  {
-    icon: GitCompare,
-    title: "Option Comparison",
-    text: "Compare two paths with pros, cons, risk trade-offs, and a direct recommendation."
+    title: "Personalized Roadmaps",
+    text: "Convert recommendations into staged skills, projects, proof-of-work, and measurable checkpoints."
   },
   {
     icon: FileText,
@@ -63,11 +68,12 @@ const useCases = [
 ];
 
 const workflow = [
-  ["Enter Decision", "Capture the choice, background, constraints, and target outcome."],
-  ["AI Simulates Outcomes", "Generate best-case, worst-case, and most-likely futures."],
-  ["Analyze Risks", "Review career, financial, personal, learning, and market risks."],
-  ["Compare Alternatives", "Evaluate competing paths with pros, cons, and trade-offs."],
-  ["Execute Action Plan", "Follow immediate, 30-day, 90-day, and long-term next steps."]
+  ["Describe your goal", "Add your profile, constraints, target role, or competing choices."],
+  ["Simulate multiple futures", "Model salary, probability, time, risk, and opportunity cost."],
+  ["Compare outcomes", "Use structured scorecards, SWOT, and market estimates."],
+  ["Receive recruiter assessment", "See readiness, evidence gaps, and hiring probability."],
+  ["Get action roadmap", "Follow skills, projects, proof-of-work, and checkpoints."],
+  ["Download intelligence report", "Export a consulting-style decision deliverable."]
 ];
 
 const demoItems = [
@@ -177,8 +183,8 @@ export default function LandingPage() {
       <section className="bg-slate-50 py-16 text-slate-950">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 max-w-3xl">
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-teal-700">Platform</p>
-            <h2 className="mt-3 text-3xl font-black">Premium decision intelligence, not a generic chatbot.</h2>
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-teal-700">Why LifeReplay AI is Different</p>
+            <h2 className="mt-3 text-3xl font-black">A decision intelligence system, not a generic chatbot.</h2>
           </div>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
@@ -197,10 +203,10 @@ export default function LandingPage() {
       <section className="bg-white py-16 text-slate-950">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 max-w-3xl">
-            <p className="text-sm font-black uppercase tracking-[0.2em] text-teal-700">Why LifeReplay AI</p>
-            <h2 className="mt-3 text-3xl font-black">A structured workflow for career decisions that matter.</h2>
+            <p className="text-sm font-black uppercase tracking-[0.2em] text-teal-700">How It Works</p>
+            <h2 className="mt-3 text-3xl font-black">Six steps from uncertainty to evidence-backed action.</h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-5">
+          <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
             {workflow.map(([title, text], index) => (
               <div key={title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5 transition hover:-translate-y-1 hover:bg-white hover:shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-slate-950 text-sm font-black text-teal-200">

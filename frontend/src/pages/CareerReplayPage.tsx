@@ -1,11 +1,13 @@
 import { BriefcaseBusiness, CheckCircle2, Clock3, FileText, GraduationCap, Loader2, Plus, Route, ShieldAlert, X } from "lucide-react";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { Button } from "../components/Button";
 import { MarketIntelligencePanel, RiskMatrixPanel, ScorecardPanel, SwotPanel, WhyRecommendation } from "../components/IntelligencePanels";
 import { ScoreRing } from "../components/ScoreRing";
 import { SectionHeader } from "../components/SectionHeader";
 import { replayCareers } from "../services/api";
 import type { CareerPath, CareerReplayResult } from "../types";
+import { useDemoData } from "../context/DemoDataContext";
+import { demoCareerReplay } from "../data/demoData";
 
 const careerPaths: CareerPath[] = [
   "AI Engineer",
@@ -45,6 +47,8 @@ export default function CareerReplayPage() {
   const [customPath, setCustomPath] = useState("");
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [extracting, setExtracting] = useState(false);
+  const { demoMode } = useDemoData();
+  useEffect(() => { if (demoMode) { setSelected(["Software Engineer", "Higher Studies"]); setBackground("Demo Data: final-year CSE student with full-stack projects deciding between work and higher studies."); setResult(demoCareerReplay); } else if (result?.id === "demo-career") setResult(null); }, [demoMode]);
 
   function togglePath(path: CareerPath) {
     setSelected((current) =>
@@ -122,6 +126,7 @@ export default function CareerReplayPage() {
         title="Compare career paths with AI decision intelligence."
         description="Replay AI Engineer, Data Scientist, Software Engineer, Government Exams, Startup Founder, and Higher Studies with fit, growth, salary, risk, readiness, and 30/90/180-day action plans."
       />
+      {demoMode && <div className="mt-6 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm font-black text-teal-800">Demo Data — Software Engineer vs Higher Studies showcase.</div>}
 
       <form
         onSubmit={handleSubmit}
