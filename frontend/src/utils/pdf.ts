@@ -66,8 +66,8 @@ export function downloadDecisionReport(result: AnalysisResult) {
     doc.setFillColor(226, 232, 240); doc.roundedRect(x, y + 3, 78, 5, 2, 2, "F");
     doc.setFillColor(...color); doc.roundedRect(x, y + 3, 78 * score / 100, 5, 2, 2, "F");
   };
-  scoreBar("Confidence", result.confidenceScore, margin, [20, 184, 166]);
-  scoreBar("Opportunity", result.opportunityScore, margin + 92, [99, 102, 241]);
+  scoreBar("Confidence Score", result.confidenceScore, margin, [20, 184, 166]);
+  scoreBar("Opportunity Score", result.opportunityScore, margin + 92, [99, 102, 241]);
   y += 18;
 
   sectionHeader("Executive Decision Scorecard");
@@ -78,11 +78,6 @@ export function downloadDecisionReport(result: AnalysisResult) {
   ] as const;
   scorecard.forEach(([label, score], index) => { ensureSpace(12); const x = index % 2 === 0 ? margin : margin + 92; if (index % 2 === 0 && index > 0) y += 13; doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(51, 65, 85); doc.text(`${label} ${score}`, x, y); doc.setFillColor(226, 232, 240); doc.roundedRect(x, y + 2, 78, 4, 2, 2, "F"); doc.setFillColor(20, 184, 166); doc.roundedRect(x, y + 2, 78 * score / 100, 4, 2, 2, "F"); });
   y += 16;
-
-  sectionHeader("Future Scenarios");
-  [["Best Case", result.bestCaseFuture], ["Worst Case", result.worstCaseFuture], ["Most Likely", result.mostLikelyFuture]].forEach(([label, text]) => {
-    doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(15, 23, 42); doc.text(label, margin, y); y += 5; paragraph(text);
-  });
 
   sectionHeader("Risk Analysis");
   [["Career risks", result.careerRisks], ["Financial risks", result.financialRisks], ["Personal risks", result.personalRisks]].forEach(([label, items]) => {

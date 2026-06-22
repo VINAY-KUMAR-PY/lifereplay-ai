@@ -8,6 +8,8 @@ import { formatDate } from "../utils/format";
 import { useDemoData } from "../context/DemoDataContext";
 import { demoHistory } from "../data/demoData";
 
+const PAGE_SIZE = 15;
+
 export default function HistoryPage() {
   const [items, setItems] = useState<AnalysisResult[]>([]);
   const [selected, setSelected] = useState<AnalysisResult | null>(null);
@@ -15,6 +17,7 @@ export default function HistoryPage() {
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
   const [filterRisk, setFilterRisk] = useState("All");
+  const [page, setPage] = useState(1);
   const { demoMode } = useDemoData();
   const riskCategories = ["All", "Career", "Financial", "Personal", "Learning", "Market"];
   const filteredItems = items.filter((item) => {
@@ -22,8 +25,13 @@ export default function HistoryPage() {
     return (item.decision.toLowerCase().includes(query) || item.summary.toLowerCase().includes(query))
       && (filterRisk === "All" || item.dominantRiskCategory === filterRisk);
   });
+  const totalPages = Math.ceil(filteredItems.length / PAGE_SIZE);
+  const paginatedItems = filteredItems.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  useEffect(() => { setPage(1); }, [search, filterRisk]);
 
   useEffect(() => {
+    setPage(1);
     if (demoMode) { setItems(demoHistory); setSelected(demoHistory[0]); setLoading(false); setError(""); return; }
     setLoading(true);
     getHistory()
@@ -65,7 +73,7 @@ export default function HistoryPage() {
       {!!items.length && (
         <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
           <div className="space-y-3">
-            {filteredItems.map((item) => (
+            {paginatedItems.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -91,6 +99,27 @@ export default function HistoryPage() {
               </button>
             ))}
             {!filteredItems.length && <div className="rounded-md border border-slate-200 bg-white p-6 text-center text-sm font-semibold text-slate-600">No decisions match this search and risk filter.</div>}
+            {totalPages > 1 && (
+              <div className="mt-6 flex items-center justify-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={page === 1}
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  Previous
+                </button>
+                <span className="text-sm font-bold text-slate-600">Page {page} of {totalPages}</span>
+                <button
+                  type="button"
+                  onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                  disabled={page === totalPages}
+                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
           <div>{selected && <ResultPanel result={selected} />}</div>
         </div>

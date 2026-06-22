@@ -4,8 +4,15 @@ dotenv.config({ path: fileURLToPath(new URL("../.env", import.meta.url)) });
 
 if (!process.env.PORT) console.warn("[LifeReplay AI] PORT not set, defaulting to 5000");
 if (!process.env.FRONTEND_URL) console.warn("[LifeReplay AI] FRONTEND_URL not set, defaulting to http://localhost:5173");
-if (!process.env.GEMINI_API_KEY) {
+const geminiKey = process.env.GEMINI_API_KEY?.trim();
+if (!geminiKey) {
   console.warn("[LifeReplay AI] GEMINI_API_KEY not set. Platform will use deterministic mock AI responses.");
+} else if (geminiKey.length < 20) {
+  console.warn("[LifeReplay AI] GEMINI_API_KEY looks malformed (too short). AI calls will likely fail. Check your .env file.");
+} else if (!geminiKey.startsWith("AI")) {
+  console.warn("[LifeReplay AI] GEMINI_API_KEY does not start with 'AI' - this may not be a valid Gemini API key.");
+} else {
+  console.info(`[LifeReplay AI] GEMINI_API_KEY detected (${geminiKey.length} chars). Live AI mode active.`);
 }
 
 import cors from "cors";
@@ -85,10 +92,12 @@ const recruiterViewRequestSchema = z.object({
 });
 
 app.get("/health", (_req, res) => {
+  const key = process.env.GEMINI_API_KEY?.trim();
+  const mode = !key ? "mock" : key.length < 20 || !key.startsWith("AI") ? "mock-key-malformed" : "live";
   res.json({
     status: "ok",
     app: "LifeReplay AI",
-    mode: process.env.GEMINI_API_KEY ? "live" : "mock",
+    mode,
     timestamp: new Date().toISOString()
   });
 });

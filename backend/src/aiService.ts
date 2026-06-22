@@ -105,10 +105,17 @@ const recruiterViewSchema = z.object({
   personalizedRoadmap: roadmapSchema
 });
 
-const apiKey = process.env.GEMINI_API_KEY;
-const model = apiKey
+const apiKey = process.env.GEMINI_API_KEY?.trim();
+const hasValidApiKey = Boolean(apiKey && apiKey.length >= 20 && apiKey.startsWith("AI"));
+const model = hasValidApiKey && apiKey
   ? new GoogleGenerativeAI(apiKey).getGenerativeModel({ model: "gemini-1.5-flash" })
   : null;
+
+const analysisSystemInstruction = "You are LifeReplay AI, a structured decision simulation engine built for Indian students, freshers, career switchers, and young professionals. You specialize in translating vague career choices into structured, scored, actionable intelligence. You think like a career counselor with 10 years of Indian job market expertise combined with a management consultant's risk framework. Never use motivational filler. Never give generic advice. Every insight must be specific to the decision provided.";
+const comparisonSystemInstruction = "You are LifeReplay AI, a rigorous option-comparison engine for Indian students and early-career professionals. Evaluate trade-offs like a career strategist and management consultant. Use specific evidence, realistic opportunity costs, and direct recommendations. Never use motivational filler or generic advice.";
+const careerReplaySystemInstruction = "You are LifeReplay AI CareerReplay, a career decision intelligence engine for Indian students, freshers, career switchers, and young professionals. Think like an Indian hiring manager, career counselor, and workforce analyst. Calibrate every score against actual entry-level barriers, portfolio expectations, compensation, and opportunity cost. Never use motivational filler or generic advice.";
+const futureSimulationSystemInstruction = "You are LifeReplay AI Future Simulation Engine, a quantitative career outcome analyst for Indian students, freshers, and early-career professionals. You think like a management consultant and labor economist with deep knowledge of the Indian job market in 2025-2026.";
+const recruiterSystemInstruction = "You are LifeReplay AI Recruiter Intelligence Engine, evaluating Indian candidates for technical roles from the perspective of a hiring manager at a top Indian or multinational tech company. You give honest, direct recruiter-grade assessments. Never soften feedback with motivational language.";
 
 export async function analyzeDecision(decision: string): Promise<AnalysisResult> {
   if (!model) {
@@ -117,8 +124,6 @@ export async function analyzeDecision(decision: string): Promise<AnalysisResult>
 
   try {
     const prompt = `
-You are LifeReplay AI, a structured decision simulation engine built for Indian students, freshers, career switchers, and young professionals. You specialize in translating vague career choices into structured, scored, actionable intelligence. You think like a career counselor with 10 years of Indian job market expertise combined with a management consultant's risk framework. Never use motivational filler. Never give generic advice. Every insight must be specific to the decision provided.
-
 Analyze this decision:
 "${decision}"
 
@@ -134,6 +139,7 @@ Be practical, specific, and avoid generic chatbot wording.
 `;
 
     const result = await model.generateContent({
+      systemInstruction: { role: "system", parts: [{ text: analysisSystemInstruction }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.7, maxOutputTokens: 2048 }
     });
@@ -158,8 +164,6 @@ export async function compareOptions(optionA: string, optionB: string): Promise<
 
   try {
     const prompt = `
-You are LifeReplay AI, a rigorous option-comparison engine for Indian students and early-career professionals. Evaluate trade-offs like a career strategist and management consultant. Use specific evidence, realistic opportunity costs, and direct recommendations. Never use motivational filler or generic advice.
-
 Compare these two options:
 Option A: "${optionA}"
 Option B: "${optionB}"
@@ -171,6 +175,7 @@ Be practical, specific, and useful for a hackathon demo.
 `;
 
     const result = await model.generateContent({
+      systemInstruction: { role: "system", parts: [{ text: comparisonSystemInstruction }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.7, maxOutputTokens: 2048 }
     });
@@ -196,8 +201,6 @@ export async function replayCareers(paths: CareerPath[], background = ""): Promi
 
   try {
     const prompt = `
-You are LifeReplay AI CareerReplay, a career decision intelligence engine for Indian students, freshers, career switchers, and young professionals. Think like an Indian hiring manager, career counselor, and workforce analyst. Calibrate every score against actual entry-level barriers, portfolio expectations, compensation, and opportunity cost. Never use motivational filler or generic advice.
-
 Compare these career paths:
 ${paths.map((path) => `- ${path}`).join("\n")}
 
@@ -227,6 +230,7 @@ Be specific, practical, and avoid generic motivational wording.
 `;
 
     const result = await model.generateContent({
+      systemInstruction: { role: "system", parts: [{ text: careerReplaySystemInstruction }] },
       contents: [{ role: "user", parts: [{ text: prompt }] }],
       generationConfig: { responseMimeType: "application/json", temperature: 0.7, maxOutputTokens: 4096 }
     });
@@ -246,9 +250,7 @@ Be specific, practical, and avoid generic motivational wording.
 export async function simulateFutures(scenarios: string[], profile = ""): Promise<FutureSimulationResult> {
   if (!model) return createMockFutureSimulation(scenarios, profile);
   try {
-    const prompt = `You are LifeReplay AI Future Simulation Engine, a quantitative career outcome analyst for Indian students, freshers, and early-career professionals. You think like a management consultant and labor economist with deep knowledge of the Indian job market in 2025-2026.
-
-Your task: Compare these future career scenarios as quantified, evidence-grounded outcomes. Never use motivational filler. Every number must be calibrated to real Indian market conditions.
+    const prompt = `Your task: Compare these future career scenarios as quantified, evidence-grounded outcomes. Never use motivational filler. Every number must be calibrated to real Indian market conditions.
 
 USER PROFILE:
 "${profile || "No profile supplied. Use a generic Indian engineering fresher baseline."}"
@@ -283,7 +285,11 @@ riskMatrix: [exactly 5 objects, one each for Career/Financial/Learning/Market/Pe
 marketIntelligence: { hiringDemand, entryBarrier, salaryGrowth, competitionLevel, automationRisk as Low|Medium|High, locationAdvantage as a specific string }.
 
 Every section must add distinct information. Do not repeat scenario text inside SWOT, risk mitigations, or recommendation reasons.`;
-    const result = await model.generateContent({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 4096 } });
+    const result = await model.generateContent({
+      systemInstruction: { role: "system", parts: [{ text: futureSimulationSystemInstruction }] },
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.6, maxOutputTokens: 4096 }
+    });
     const parsed = futureSimulationSchema.parse(JSON.parse(result.response.text()));
     return { id: nanoid(), createdAt: new Date().toISOString(), ...parsed };
   } catch (error) {
@@ -295,8 +301,14 @@ Every section must add distinct information. Do not repeat scenario text inside 
 export async function generateRecruiterView(targetRole: string, profile: string): Promise<RecruiterViewResult> {
   if (!model) return createMockRecruiterView(targetRole, profile);
   try {
-    const prompt = `You are a senior Indian technology recruiter assessing a candidate for ${targetRole}. Analyze only evidence in this profile: "${profile}". Return structured JSON with readinessScore, missingSkills, missingProjects, resumeGaps, interviewWeaknesses, hiringProbability {threeMonths, sixMonths, twelveMonths}, recruiterVerdict, improvementPlan, personalizedRoadmap. improvementPlan must contain exactly five ranked objects with action and impact (High Impact, Medium Impact, or Low Impact). personalizedRoadmap must contain exactly Week 1-2, Week 3-4, Month 2, Month 3, Month 4-6; each step has skillFocus, projectTask, proofOfWork, evaluationCheckpoint specific to the profile and target role. Be candid and calibrated to 2025-2026 fresher hiring in Bengaluru, Hyderabad, and Pune. No filler, motivational fluff, repeated advice, or unsupported profile claims.`;
-    const result = await model.generateContent({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json", temperature: 0.5, maxOutputTokens: 3072 } });
+    const prompt = `Assess the candidate for this target role: "${targetRole}".
+Analyze only evidence in this profile: "${profile}".
+Return structured JSON with readinessScore, missingSkills, missingProjects, resumeGaps, interviewWeaknesses, hiringProbability {threeMonths, sixMonths, twelveMonths}, recruiterVerdict, improvementPlan, personalizedRoadmap. improvementPlan must contain exactly five ranked objects with action and impact (High Impact, Medium Impact, or Low Impact). personalizedRoadmap must contain exactly Week 1-2, Week 3-4, Month 2, Month 3, Month 4-6; each step has skillFocus, projectTask, proofOfWork, evaluationCheckpoint specific to the profile and target role. Be candid and calibrated to 2025-2026 fresher hiring in Bengaluru, Hyderabad, and Pune. No filler, motivational fluff, repeated advice, or unsupported profile claims.`;
+    const result = await model.generateContent({
+      systemInstruction: { role: "system", parts: [{ text: recruiterSystemInstruction }] },
+      contents: [{ role: "user", parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.5, maxOutputTokens: 3072 }
+    });
     const parsed = recruiterViewSchema.parse(JSON.parse(result.response.text()));
     return { id: nanoid(), createdAt: new Date().toISOString(), targetRole, ...parsed };
   } catch (error) {

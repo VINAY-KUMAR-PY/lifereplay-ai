@@ -13,7 +13,8 @@ import {
   Telescope
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDemoData } from "../context/DemoDataContext";
 
 const features = [
   {
@@ -83,6 +84,8 @@ const demoItems = [
 ];
 
 export default function LandingPage() {
+  const navigate = useNavigate();
+  const { loadDemoData } = useDemoData();
   const [demoIndex, setDemoIndex] = useState(0);
   useEffect(() => {
     const interval = window.setInterval(() => setDemoIndex((index) => (index + 1) % demoItems.length), 4000);
@@ -92,8 +95,8 @@ export default function LandingPage() {
 
   return (
     <div className="bg-slate-950 text-white">
-      <section className="relative overflow-hidden border-b border-white/10">
-        <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(17,24,39,0.96)_46%,rgba(20,184,166,0.18))]" />
+      <section className="landing-hero-shell relative overflow-hidden border-b border-white/10">
+        <div className="landing-hero-backdrop absolute inset-0 bg-[linear-gradient(135deg,rgba(15,23,42,0.98),rgba(17,24,39,0.96)_46%,rgba(20,184,166,0.18))]" />
         <div className="relative mx-auto grid min-h-[calc(100vh-73px)] max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:px-8">
           <div>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-teal-300/30 bg-white/10 px-4 py-2 text-sm font-black text-teal-100 backdrop-blur">
@@ -123,6 +126,13 @@ export default function LandingPage() {
               >
                 Analyze a decision
               </Link>
+              <button
+                type="button"
+                onClick={() => { loadDemoData(); navigate("/future-simulation"); }}
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/30 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/20"
+              >
+                <Sparkles size={18} /> Try with demo data
+              </button>
             </div>
           </div>
 
